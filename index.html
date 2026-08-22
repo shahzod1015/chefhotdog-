@@ -24,6 +24,7 @@
             --gold-text: #f5d061;
             --card-bg: rgba(18, 18, 18, 0.9);
             --dark-bg: #0a0a0d;
+            --tiffany-blue: #00CAD1;
         }
 
         * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 0; }
@@ -75,16 +76,19 @@
             color: #a1a1aa;
         }
 
+        /* TIFFANY BLUE MINIMUM LIMIT BLOCK */
         .min-order-info {
-            background: rgba(212, 175, 55, 0.1);
-            border: var(--gold-border-thin);
-            padding: 10px;
-            border-radius: 12px;
+            background: rgba(0, 202, 209, 0.08);
+            border: 1px solid var(--tiffany-blue);
+            padding: 12px;
+            border-radius: 14px;
             text-align: center;
-            font-size: 13px;
-            color: var(--gold-text);
-            margin-bottom: 14px;
-            font-weight: 600;
+            font-size: 14px;
+            color: var(--tiffany-blue);
+            margin-bottom: 16px;
+            font-weight: 700;
+            box-shadow: 0 0 15px rgba(0, 202, 209, 0.15);
+            letter-spacing: 0.3px;
         }
 
         .pos-grid { 
@@ -194,7 +198,7 @@
         <p>🚀 Onlayn buyurtma va tezkor yetkazib berish</p>
     </div>
 
-    <!-- MINIMUM LIMIT BILDIRISHNOMASI -->
+    <!-- TIFFANY BLUE MINIMUM LIMIT BILDIRISHNOMASI -->
     <div class="min-order-info">
         ⚠️ Eng kam buyurtma summasi: <b>48 000 so'm</b>
     </div>
@@ -229,14 +233,13 @@
         const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndycnN2cmdkaW5mbW51d2V3dG9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY5NzM0ODIsImV4cCI6MjEwMjU0OTQ4Mn0.YRHratsKVG42IY6YKokDycRy23oU8N3b7jO-o3tpQF4";
         const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        const MIN_ORDER_AMOUNT = 48000; // Eng kam buyurtma limiti
+        const MIN_ORDER_AMOUNT = 48000;
 
         let cart = {};
         let menuItems = [];
         let map, marker;
-        let selectedLat = 41.311081, selectedLng = 69.240562; // Toshkent default
+        let selectedLat = 41.311081, selectedLng = 69.240562;
 
-        // XARITANI YUKLASH (Leaflet OpenStreetMap)
         function initMap() {
             map = L.map('map').setView([selectedLat, selectedLng], 12);
 
@@ -252,7 +255,6 @@
                 document.getElementById('cust-address').value = `GPS: ${lat.toFixed(5)}, ${lng.toFixed(5)}`;
             }
 
-            // GPS orqali avto aniqlash
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(pos => {
                     const { latitude, longitude } = pos.coords;
@@ -273,7 +275,6 @@
             });
         }
 
-        // MENYUNI SUPABASE'DAN OLISH
         async function loadMenu() {
             const { data, error } = await db.from('menu').select('*');
             if(error) return alert("Menyu yuklanmadi");
@@ -326,7 +327,6 @@
             return total;
         }
 
-        // BUYURTMANI OSHXONAGA/POS'GA YUBORISH
         async function sendDeliveryOrder() {
             const name = document.getElementById('cust-name').value.trim();
             const phone = document.getElementById('cust-phone').value.trim();
@@ -353,7 +353,6 @@
                 return alert("Kamida bitta taom tanlang!");
             }
 
-            // 🛑 ENG KAM BUYURTMA LIMITI TEKSHIROVI (48,000 SO'M)
             if (totalAmount < MIN_ORDER_AMOUNT) {
                 const needed = MIN_ORDER_AMOUNT - totalAmount;
                 return alert(`⚠️ Eng kam yetkazib berish summasi ${MIN_ORDER_AMOUNT.toLocaleString()} so'm!\n\nBuyurtmangiz: ${totalAmount.toLocaleString()} so'm.\nYana ${needed.toLocaleString()} so'mlik taom qo'shing.`);
