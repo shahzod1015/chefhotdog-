@@ -34,7 +34,7 @@
             padding: 12px; 
             color: #f1f5f9; 
             min-height: 100vh;
-            padding-bottom: 90px;
+            padding-bottom: 110px;
         }
 
         .header {
@@ -75,6 +75,18 @@
             color: #a1a1aa;
         }
 
+        .min-order-info {
+            background: rgba(212, 175, 55, 0.1);
+            border: var(--gold-border-thin);
+            padding: 10px;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 13px;
+            color: var(--gold-text);
+            margin-bottom: 14px;
+            font-weight: 600;
+        }
+
         .pos-grid { 
             display: grid; 
             grid-template-columns: repeat(2, 1fr); 
@@ -110,11 +122,6 @@
         .qty-btn { 
             width: 28px; height: 28px; background: rgba(35, 30, 20, 0.8); color: var(--gold-text); 
             border: var(--gold-border-thin); border-radius: 8px; font-weight: bold; cursor: pointer; 
-        }
-
-        .btn-add {
-            background: var(--gold-btn-grad); color: #000; border: none; padding: 8px;
-            border-radius: 10px; font-weight: 800; font-size: 12px; cursor: pointer; width: 100%;
         }
 
         /* FORM FIELD */
@@ -187,6 +194,11 @@
         <p>🚀 Onlayn buyurtma va tezkor yetkazib berish</p>
     </div>
 
+    <!-- MINIMUM LIMIT BILDIRISHNOMASI -->
+    <div class="min-order-info">
+        ⚠️ Eng kam buyurtma summasi: <b>48 000 so'm</b>
+    </div>
+
     <!-- TAOMLAR MENYUSI -->
     <h3 style="color:var(--gold-text); margin-bottom: 10px;">🍽 Menyuni Tanlang:</h3>
     <div id="delivery-menu" class="pos-grid">Yuklanmoqda...</div>
@@ -216,6 +228,8 @@
         const SUPABASE_URL = "https://wrrsvrgdinfmnuwewtoa.supabase.co";
         const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndycnN2cmdkaW5mbW51d2V3dG9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY5NzM0ODIsImV4cCI6MjEwMjU0OTQ4Mn0.YRHratsKVG42IY6YKokDycRy23oU8N3b7jO-o3tpQF4";
         const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        const MIN_ORDER_AMOUNT = 48000; // Eng kam buyurtma limiti
 
         let cart = {};
         let menuItems = [];
@@ -309,6 +323,7 @@
                 }
             });
             document.getElementById('cart-total').innerText = total.toLocaleString() + " so'm";
+            return total;
         }
 
         // BUYURTMANI OSHXONAGA/POS'GA YUBORISH
@@ -338,13 +353,21 @@
                 return alert("Kamida bitta taom tanlang!");
             }
 
+            // 🛑 ENG KAM BUYURTMA LIMITI TEKSHIROVI (48,000 SO'M)
+            if (totalAmount < MIN_ORDER_AMOUNT) {
+                const needed = MIN_ORDER_AMOUNT - totalAmount;
+                return alert(`⚠️ Eng kam yetkazib berish summasi ${MIN_ORDER_AMOUNT.toLocaleString()} so'm!\n\nBuyurtmangiz: ${totalAmount.toLocaleString()} so'm.\nYana ${needed.toLocaleString()} so'mlik taom qo'shing.`);
+            }
+
             const statusText = `🛵 YETKAZISH: ${name} (${phone}) | Manzil: ${address} | Tarkib: ${orderItemsStr.join(', ')}`;
 
             const { error } = await db.from('sales').insert([{
                 total_amount: totalAmount,
                 total_cost: totalCost,
                 profit: totalAmount - totalCost,
-                status: statusText
+                status: statusText,
+                lat: selectedLat,
+                lng: selectedLng
             }]);
 
             if (error) {
