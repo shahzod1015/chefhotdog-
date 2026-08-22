@@ -34,7 +34,7 @@
             padding: 12px; 
             color: #f1f5f9; 
             min-height: 100vh;
-            padding-bottom: 90px;
+            padding-bottom: 110px;
         }
 
         .header {
@@ -112,7 +112,6 @@
             border: var(--gold-border-thin); border-radius: 8px; font-weight: bold; cursor: pointer; 
         }
 
-        /* FORM FIELD */
         .order-form {
             background: var(--card-bg);
             border: var(--gold-border-thin);
@@ -136,7 +135,17 @@
             margin-bottom: 12px;
         }
 
-        /* CART FLOATING BAR */
+        .delivery-info {
+            background: rgba(212, 175, 55, 0.1);
+            border: var(--gold-border-thin);
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 12px;
+            font-size: 13px;
+        }
+
+        .delivery-info span { font-weight: bold; color: var(--gold-text); }
+
         .cart-bar {
             position: fixed;
             bottom: 12px;
@@ -191,15 +200,21 @@
         
         <p style="font-size:12px; color:#a1a1aa; margin-bottom: 6px;">Manzilingizni xaritadan tanlang:</p>
         <div id="map"></div>
+        
+        <div class="delivery-info">
+            Masofa: <span id="del-distance">0 km</span> | 
+            Dostavka narxi: <span id="del-price">0 so'm</span>
+        </div>
+
         <input type="text" id="cust-address" placeholder="Tanlangan joylashuv koordinatasi" readonly>
     </div>
 
     <div class="cart-bar">
         <div>
-            <div style="font-size:11px; color:#a1a1aa;">Jami summa:</div>
+            <div style="font-size:11px; color:#a1a1aa;">Jami summa (Taom + Dostavka):</div>
             <div id="cart-total" style="font-size:18px; font-weight:900; color:var(--gold-text);">0 so'm</div>
         </div>
-        <button class="btn-submit" onclick="sendDeliveryOrder()">Buyurtma berish 🚀</button>
+        <button class="btn-submit" id="btn-submit-order" onclick="sendDeliveryOrder()">Buyurtma berish 🚀</button>
     </div>
 
     <script>
@@ -207,33 +222,94 @@
         const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndycnN2cmdkaW5mbW51d2V3dG9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY5NzM0ODIsImV4cCI6MjEwMjU0OTQ4Mn0.YRHratsKVG42IY6YKokDycRy23oU8N3b7jO-o3tpQF4";
         const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+        // RESTORAN SOZLAMALARI (SHU YERDAN O'ZGARTIRISHINGIZ MUMKIN)
+        const RESTAURANT_LAT = 41.311081; // Restoran Enlik koordinatasi (Latitude)
+        const RESTAURANT_LNG = 69.240562; // Restoran Uzunlik koordinatasi (Longitude)
+        const MAX_DELIVERY_KM = 12;       // Maksimal yetkazib berish masofasi (KM)
+        const BASE_KM = 3;                // Dastlabki bepul yoki bazaviy km
+        const BASE_DELIVERY_PRICE = 10000;// Dastlabki 3 km uchun narx
+        const PER_KM_PRICE = 2000;        // 3 km dan keyingi har bir km uchun qo'shimcha narx
+
         let cart = {};
         let menuItems = [];
-        let map, marker;
-        let selectedLat = 41.311081, selectedLng = 69.240562;
+        let map, marker, restMarker, deliveryCircle;
+        let selectedLat = RESTAURANT_LAT, selectedLng = RESTAURANT_LNG;
+        let currentDeliveryFee = 0;
+        let isWithinZone = true;
+
+        // IKKITA GPS NUKTA ORASIDAGI MASOFANI HISOBASH (KM)
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371; // Yer radiusi km da
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+                      Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c;
+        }
+
+        // DOSTAVKA NARXINI HISOBLASH
+        function updateDeliveryFee(lat, lng) {
+            const distance = calculateDistance(RESTAURANT_LAT, RESTAURANT_LNG, lat, lng);
+            document.getElementById('del-distance').innerText = distance.toFixed(1) + " km";
+
+            if (distance > MAX_DELIVERY_KM) {
+                isWithinZone = false;
+                currentDeliveryFee = 0;
+                document.getElementById('del-price').innerText = "🚫 Hududdan tashqarida";
+                document.getElementById('del-price').style.color = "#ef4444";
+            } else {
+                isWithinZone = true;
+                if (distance <= BASE_KM) {
+                    currentDeliveryFee = BASE_DELIVERY_PRICE;
+                } else {
+                    const extraKm = Math.ceil(distance - BASE_KM);
+                    currentDeliveryFee = BASE_DELIVERY_PRICE + (extraKm * PER_KM_PRICE);
+                }
+                document.getElementById('del-price').innerText = currentDeliveryFee.toLocaleString() + " so'm";
+                document.getElementById('del-price').style.color = "#f5d061";
+            }
+
+            calculateTotal();
+        }
 
         function initMap() {
-            map = L.map('map').setView([selectedLat, selectedLng], 12);
+            map = L.map('map').setView([RESTAURANT_LAT, RESTAURANT_LNG], 12);
 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '© OpenStreetMap'
             }).addTo(map);
 
-            marker = L.marker([selectedLat, selectedLng], {draggable: true}).addTo(map);
+            // Restoran belgisi va Yetkazib berish zonasi doirasi
+            restMarker = L.marker([RESTAURANT_LAT, RESTAURANT_LNG]).addTo(map)
+                .bindPopup('<b>CHEF HOTDOG RESTORANI</b>').openPopup();
+
+            deliveryCircle = L.circle([RESTAURANT_LAT, RESTAURANT_LNG], {
+                color: '#d4af37',
+                fillColor: '#d4af37',
+                fillOpacity: 0.15,
+                radius: MAX_DELIVERY_KM * 1000 // metrda
+            }).addTo(map);
+
+            // Mijoz belgisi
+            marker = L.marker([RESTAURANT_LAT, RESTAURANT_LNG], {draggable: true}).addTo(map);
 
             function updateCoords(lat, lng) {
                 selectedLat = lat;
                 selectedLng = lng;
                 document.getElementById('cust-address').value = `GPS: ${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+                updateDeliveryFee(lat, lng);
             }
 
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(pos => {
                     const { latitude, longitude } = pos.coords;
-                    map.setView([latitude, longitude], 15);
                     marker.setLatLng([latitude, longitude]);
                     updateCoords(latitude, longitude);
                 });
+            } else {
+                updateCoords(RESTAURANT_LAT, RESTAURANT_LNG);
             }
 
             map.on('click', function(e) {
@@ -241,7 +317,7 @@
                 updateCoords(e.latlng.lat, e.latlng.lng);
             });
 
-            marker.on('dragend', function(e) {
+            marker.on('dragend', function() {
                 const coord = marker.getLatLng();
                 updateCoords(coord.lat, coord.lng);
             });
@@ -289,16 +365,22 @@
         }
 
         function calculateTotal() {
-            let total = 0;
+            let foodTotal = 0;
             menuItems.forEach(item => {
                 if (cart[item.id]) {
-                    total += cart[item.id] * item.price;
+                    foodTotal += cart[item.id] * item.price;
                 }
             });
-            document.getElementById('cart-total').innerText = total.toLocaleString() + " so'm";
+
+            const grandTotal = foodTotal > 0 ? (foodTotal + currentDeliveryFee) : 0;
+            document.getElementById('cart-total').innerText = grandTotal.toLocaleString() + " so'm";
         }
 
         async function sendDeliveryOrder() {
+            if (!isWithinZone) {
+                return alert("Kechirasiz, tanlangan manzil bizning yetkazib berish hududimizdan tashqarida (Maksimal radius: " + MAX_DELIVERY_KM + " km)!");
+            }
+
             const name = document.getElementById('cust-name').value.trim();
             const phone = document.getElementById('cust-phone').value.trim();
             const address = document.getElementById('cust-address').value;
@@ -308,14 +390,14 @@
             }
 
             let orderItemsStr = [];
-            let totalAmount = 0;
+            let foodAmount = 0;
             let totalCost = 0;
 
             menuItems.forEach(item => {
                 const qty = cart[item.id] || 0;
                 if (qty > 0) {
                     orderItemsStr.push(`${item.title} (x${qty})`);
-                    totalAmount += item.price * qty;
+                    foodAmount += item.price * qty;
                     totalCost += (item.cost || 0) * qty;
                 }
             });
@@ -324,12 +406,13 @@
                 return alert("Kamida bitta taom tanlang!");
             }
 
-            const statusText = `🛵 YETKAZISH: ${name} (${phone}) | Manzil: ${address} | Tarkib: ${orderItemsStr.join(', ')}`;
+            const grandTotal = foodAmount + currentDeliveryFee;
+            const statusText = `🛵 YETKAZISH: ${name} (${phone}) | Manzil: ${address} | Dostavka: ${currentDeliveryFee.toLocaleString()} so'm | Taomlar: ${orderItemsStr.join(', ')}`;
 
             const { error } = await db.from('sales').insert([{
-                total_amount: totalAmount,
+                total_amount: grandTotal,
                 total_cost: totalCost,
-                profit: totalAmount - totalCost,
+                profit: grandTotal - totalCost,
                 status: statusText
             }]);
 
