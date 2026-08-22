@@ -24,7 +24,6 @@
             --gold-text: #f5d061;
             --card-bg: rgba(18, 18, 18, 0.9);
             --dark-bg: #0a0a0d;
-            --tiffany-blue: #00CAD1;
         }
 
         * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 0; }
@@ -76,19 +75,22 @@
             color: #a1a1aa;
         }
 
-        /* TIFFANY BLUE MINIMUM LIMIT BLOCK */
+        /* TIFFANY BLUE EXACT STYLE */
         .min-order-info {
-            background: rgba(0, 202, 209, 0.08);
-            border: 1px solid var(--tiffany-blue);
-            padding: 12px;
-            border-radius: 14px;
-            text-align: center;
-            font-size: 14px;
-            color: var(--tiffany-blue);
-            margin-bottom: 16px;
-            font-weight: 700;
-            box-shadow: 0 0 15px rgba(0, 202, 209, 0.15);
-            letter-spacing: 0.3px;
+            background: rgba(0, 202, 209, 0.12) !important;
+            border: 1px solid #00CAD1 !important;
+            padding: 12px !important;
+            border-radius: 14px !important;
+            text-align: center !important;
+            font-size: 14px !important;
+            color: #00CAD1 !important;
+            margin-bottom: 16px !important;
+            font-weight: 700 !important;
+            box-shadow: 0 0 12px rgba(0, 202, 209, 0.25) !important;
+        }
+
+        .min-order-info b, .min-order-info span {
+            color: #00CAD1 !important;
         }
 
         .pos-grid { 
@@ -199,8 +201,8 @@
     </div>
 
     <!-- TIFFANY BLUE MINIMUM LIMIT BILDIRISHNOMASI -->
-    <div class="min-order-info">
-        ⚠️ Eng kam buyurtma summasi: <b>48 000 so'm</b>
+    <div class="min-order-info" style="color: #00CAD1 !important; border-color: #00CAD1 !important;">
+        ⚠️ Eng kam buyurtma summasi: <b style="color: #00CAD1 !important;">48 000 so'm</b>
     </div>
 
     <!-- TAOMLAR MENYUSI -->
