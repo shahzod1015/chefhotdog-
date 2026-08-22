@@ -363,13 +363,12 @@
 
             const statusText = `🛵 YETKAZISH: ${name} (${phone}) | Manzil: ${address} | Tarkib: ${orderItemsStr.join(', ')}`;
 
+            // Supabase database ga lat va lng lar yuborilmaydi (xatolik bermaydi)
             const { error } = await db.from('sales').insert([{
                 total_amount: totalAmount,
                 total_cost: totalCost,
                 profit: totalAmount - totalCost,
-                status: statusText,
-                lat: selectedLat,
-                lng: selectedLng
+                status: statusText
             }]);
 
             if (error) {
