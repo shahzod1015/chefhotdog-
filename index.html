@@ -331,14 +331,20 @@
             <label style="font-size:13px; font-weight:bold; color:var(--gold-text); display:block; margin-bottom:6px;">💳 To'lov turini tanlang:</label>
             <select id="payment-method" onchange="togglePaymentDetails()" style="margin-bottom:8px;">
                 <option value="cash">💵 Naqd pul (Kuryerga)</option>
-                <option value="card">💳 Karta yoki QR kod orqali</option>
+                <option value="card">💳 Karta yoki QR kod orqali (Chek talab qilinadi)</option>
             </select>
 
-            <div id="card-payment-info" style="display:none; text-align:center; padding:8px; background:rgba(0,0,0,0.5); border-radius:8px; border:1px solid #d4af37;">
+            <div id="card-payment-info" style="display:none; text-align:center; padding:8px; background:rgba(0,0,0,0.5); border-radius:8px; border:1px solid #d4af37; margin-bottom: 8px;">
                 <p style="font-size:11px; color:#ccc; margin-bottom:2px;">Quyidagi karta raqamiga yoki QR kod orqali o'tkazing:</p>
                 <b id="display-card-num" style="font-size:15px; color:#f5d061; letter-spacing:1px;">Yuklanmoqda...</b><br>
                 <small id="display-card-holder" style="color:#aaa;"></small>
                 <div id="display-qr-container" style="margin-top:6px;"></div>
+            </div>
+
+            <!-- CHEK YUKLASH INPUTI -->
+            <div id="receipt-upload-box" style="display:none; margin-top:8px;">
+                <label style="font-size:12px; color:#10b981; font-weight:bold; display:block; margin-bottom:4px;">📎 To'lov chekini yuklang (Rasm yoki PDF):</label>
+                <input type="file" id="receipt-file" accept="image/*,application/pdf" style="padding: 8px; font-size: 12px; background: #121215;">
             </div>
         </div>
     </div>
@@ -523,6 +529,7 @@
         function togglePaymentDetails() {
             const method = document.getElementById('payment-method').value;
             document.getElementById('card-payment-info').style.display = (method === 'card') ? 'block' : 'none';
+            document.getElementById('receipt-upload-box').style.display = (method === 'card') ? 'block' : 'none';
         }
 
         async function initApp() {
@@ -586,6 +593,35 @@
 
             if (!name || !phone) return alert("Ismingiz va telefon raqamingizni kiriting!");
 
+            let receiptFileUrl = "";
+            if (payMethod === 'card') {
+                const fileInput = document.getElementById('receipt-file');
+                if (!fileInput.files || fileInput.files.length === 0) {
+                    return alert("⚠️ Iltimos, karta yoki QR kod orqali to'lov qilganingizdan so'ng to'lov chekini (rasm yoki PDF) yuklang!");
+                }
+
+                const file = fileInput.files[0];
+                const fileExt = file.name.split('.').pop();
+                const fileName = `receipt_${Date.now()}.${fileExt}`;
+                const filePath = `receipts/${fileName}`;
+
+                // Supabase Storage-ga chekni yuklash
+                const { data: uploadData, error: uploadError } = await client.storage
+                    .from('menu-images')
+                    .upload(filePath, file);
+
+                if (uploadError) {
+                    return alert("Chekni yuklashda xatolik yuz berdi: " + uploadError.message);
+                }
+
+                // Public URL olish
+                const { data: publicUrlData } = client.storage
+                    .from('menu-images')
+                    .getPublicUrl(filePath);
+
+                receiptFileUrl = publicUrlData.publicUrl;
+            }
+
             let orderItemsStr = [];
             let totalFoodAmount = 0;
             let totalCost = 0;
@@ -607,19 +643,18 @@
 
             const grandTotal = totalFoodAmount + currentDeliveryFee;
             
-            // To'lov holatiga qarab rangli yozuvlar va statuslarni tayyorlash
             let paymentStatusHtml = '';
             let paymentStatusTg = '';
 
             if (payMethod === 'card') {
                 paymentStatusHtml = '<span style="color: #10b981; font-weight: bold;">TO\'LANGAN</span>';
-                paymentStatusTg = '🟢 <b>TO\'LANGAN</b> (Karta / QR kod orqali)';
+                paymentStatusTg = `🟢 <b>TO'LANGAN</b> (Karta/QR orqali)\n📎 Chek fayli: <a href="${receiptFileUrl}" target="_blank">Ko'rish / PDF yuklab olish</a>`;
             } else {
                 paymentStatusHtml = '<span style="color: #ef4444; font-weight: bold;">To\'lov naqt pul asosida</span>';
                 paymentStatusTg = '🔴 <b>To\'lov naqt pul asosida</b>';
             }
 
-            const statusText = `🛵 YETKAZISH: ${name} (${phone}) | Holat: ${payMethod === 'card' ? "TO'LANGAN" : "To'lov naqt pul asosida"} | Manzil: ${address} | GPS: ${selectedLat.toFixed(5)}, ${selectedLng.toFixed(5)} | Dostavka: ${currentDeliveryFee.toLocaleString()} so'm | Taomlar: ${orderItemsStr.join(', ')}`;
+            const statusText = `🛵 YETKAZISH: ${name} (${phone}) | Holat: ${payMethod === 'card' ? "TO'LANGAN (Chek bor: " + receiptFileUrl + ")" : "To'lov naqt pul asosida"} | Manzil: ${address} | GPS: ${selectedLat.toFixed(5)}, ${selectedLng.toFixed(5)} | Dostavka: ${currentDeliveryFee.toLocaleString()} so'm | Taomlar: ${orderItemsStr.join(', ')}`;
 
             // 1. Bazaga yozish
             const { error } = await client.from('sales').insert([{
@@ -654,11 +689,36 @@
                         parse_mode: 'HTML'
                     })
                 });
+
+                // Agar chek yuklangan bo'lsa uni ham botga dokument yoki rasm sifatida yuborish
+                if (payMethod === 'card' && receiptFileUrl) {
+                    if (receiptFileUrl.toLowerCase().endsWith('.pdf')) {
+                        await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendDocument`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                chat_id: TELEGRAM_CHAT_ID,
+                                document: receiptFileUrl,
+                                caption: `📎 ${name} uchun to'lov cheki (PDF)`
+                            })
+                        });
+                    } else {
+                        await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                chat_id: TELEGRAM_CHAT_ID,
+                                photo: receiptFileUrl,
+                                caption: `📎 ${name} uchun to'lov cheki`
+                            })
+                        });
+                    }
+                }
             } catch (tgErr) {
                 console.log("Telegramga yuborishda xatolik:", tgErr);
             }
 
-            alert("✅ Buyurtmangiz muvaffaqiyatli qabul qilindi!");
+            alert("✅ Buyurtmangiz va to'lov chekingiz muvaffaqiyatli yuborildi!");
             location.reload();
         }
 
