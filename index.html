@@ -152,16 +152,17 @@
             z-index: 1;
         }
 
-        /* CUSTOM ZONE TOOLTIPS */
-        .zone-tooltip-1 {
-            background: rgba(16, 185, 129, 0.95) !important;
-            border: 1px solid #10b981 !important;
-            color: #fff !important;
-            font-weight: bold !important;
-            font-size: 11px !important;
-            border-radius: 8px !important;
-            padding: 3px 8px !important;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.5) !important;
+        .zone-label-1 {
+            background: rgba(16, 185, 129, 0.95);
+            border: 1px solid #10b981;
+            color: #fff;
+            font-weight: bold;
+            font-size: 11px;
+            border-radius: 8px;
+            padding: 3px 8px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+            white-space: nowrap;
         }
 
         .zone-label-2 {
@@ -287,11 +288,13 @@
         let menuItems = [];
         let map, userMarker, cafeMarker, circle1, circle2;
 
-        let cafeLat = 38.84977, cafeLng = 65.78876;
+        // KAFE KOORDINATASI
+        let cafeLat = 38.849449, cafeLng = 65.793410; 
+        
         let zone1Km = 0.7, zone1Price = 5000;
         let zone2Km = 2.0, zone2Price = 10000;
 
-        let selectedLat = 38.84977, selectedLng = 65.78876;
+        let selectedLat = cafeLat, selectedLng = cafeLng;
         let currentDeliveryFee = 0;
 
         function calculateDistance(lat1, lon1, lat2, lon2) {
@@ -343,16 +346,26 @@
                 attribution: '© OpenStreetMap'
             }).addTo(map);
 
-            // 1-ZONA (Yashil doira - Markazda)
+            // 1-ZONA (Yashil doira)
             circle1 = L.circle([cafeLat, cafeLng], {
                 color: '#10b981',
                 fillColor: '#10b981',
                 fillOpacity: 0.15,
                 radius: zone1Km * 1000
             }).addTo(map);
-            circle1.bindTooltip(`🟢 1-Zona: ${zone1Price.toLocaleString()} so'm`, { permanent: true, direction: 'top', className: 'zone-tooltip-1' });
 
-            // 2-ZONA (Qizil doira - Yozuv aniq qizil aylana chetida joylashadi)
+            // 1-Zona yozuvi
+            const zone1TopLat = cafeLat + (zone1Km / 111.32);
+            L.marker([zone1TopLat, cafeLng], {
+                icon: L.divIcon({
+                    className: '',
+                    html: `<div class="zone-label-1">🟢 1-Zona: ${zone1Price.toLocaleString()} so'm</div>`,
+                    iconSize: [130, 24],
+                    iconAnchor: [65, 12]
+                })
+            }).addTo(map);
+
+            // 2-ZONA (Qizil doira)
             circle2 = L.circle([cafeLat, cafeLng], {
                 color: '#ef4444',
                 fillColor: '#ef4444',
@@ -360,20 +373,22 @@
                 radius: zone2Km * 1000
             }).addTo(map);
 
-            // 2-Zona belgisi uchun qizil doiraning yuqori chegarasini hisoblash
+            // 2-Zona yozuvi (qizil doiraning yuqori chetida)
             const zone2TopLat = cafeLat + (zone2Km / 111.32);
             L.marker([zone2TopLat, cafeLng], {
                 icon: L.divIcon({
                     className: '',
                     html: `<div class="zone-label-2">🔴 2-Zona: ${zone2Price.toLocaleString()} so'm</div>`,
-                    iconSize: [140, 26],
-                    iconAnchor: [70, 13]
+                    iconSize: [130, 24],
+                    iconAnchor: [65, 12]
                 })
             }).addTo(map);
 
+            // Kafe markazi
             cafeMarker = L.marker([cafeLat, cafeLng]).addTo(map)
                 .bindPopup("<b>🍔 CHEF Hotdog Kafe</b>");
 
+            // Mijoz belgisi
             userMarker = L.marker([cafeLat, cafeLng], { draggable: true }).addTo(map);
 
             function updateCoords(lat, lng) {
