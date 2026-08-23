@@ -9,7 +9,8 @@
     <link rel="apple-touch-icon" sizes="180x180" href="https://i.ibb.co/YFZh8t0q/content.png">
     <link rel="icon" type="image/png" href="https://i.ibb.co/YFZh8t0q/content.png">
     
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Supabase JS CDN (Rasmiy ishlaydigan xavfsiz havola) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
     
     <!-- OpenStreetMap Leaflet Xarita JS va CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -46,7 +47,6 @@
             overflow-x: hidden;
         }
 
-        /* STICKY TOP CONTAINER */
         .sticky-top-section {
             position: sticky;
             top: 0;
@@ -61,7 +61,6 @@
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.8);
         }
 
-        /* HEADER BLOKI */
         .header-card {
             background: var(--card-bg);
             border-radius: 20px;
@@ -78,7 +77,6 @@
             gap: 10px;
         }
 
-        /* CHAP TARAFI (CONTACTS) */
         .contacts-left {
             display: flex;
             flex-direction: column;
@@ -113,7 +111,6 @@
             flex-shrink: 0;
         }
 
-        /* O'NG TARAFI (LOGO VA SARLAVHA) */
         .brand-right {
             display: flex;
             flex-direction: column;
@@ -310,30 +307,24 @@
 </head>
 <body>
 
-    <!-- STICKY HEADER CONTAINER -->
     <div class="sticky-top-section">
         <div class="header-card">
             <div class="header-row">
-                <!-- CHAP TOMON: TEL VA IJTIMOIY TARMOQLAR -->
                 <div class="contacts-left">
-                    <!-- Telefon -->
                     <a href="tel:+998776301521" class="contact-btn">
                         <svg viewBox="0 0 24 24" fill="#d4af37"><path d="M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
                         +998 77 630 15 21
                     </a>
-                    <!-- Telegram -->
                     <a href="https://t.me/chef_hotdog" target="_blank" class="contact-btn">
                         <svg viewBox="0 0 24 24" fill="#0088cc"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.2-.08-.06-.19-.04-.27-.02-.12.02-1.96 1.25-5.54 3.67-.52.36-.99.53-1.42.52-.47-.01-1.37-.26-2.03-.48-.82-.27-1.47-.42-1.42-.88.03-.24.38-.49 1.05-.75 4.12-1.79 6.87-2.97 8.25-3.55 3.93-1.63 4.75-1.92 5.28-1.93.12 0 .37.03.54.17.14.12.18.28.2.45-.02.07-.02.16-.04.28z"/></svg>
                         Telegram
                     </a>
-                    <!-- Instagram -->
                     <a href="https://instagram.com/chef__hotdog" target="_blank" class="contact-btn">
                         <svg viewBox="0 0 24 24" fill="#e1306c"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
                         @chef__hotdog
                     </a>
                 </div>
 
-                <!-- O'NG TOMON: LOGO VA NOMI -->
                 <div class="brand-right">
                     <img src="https://i.ibb.co/YFZh8t0q/content.png" alt="CHEF Hotdog" class="logo-img">
                     <h1>CHEF HOTDOG</h1>
@@ -350,11 +341,9 @@
         </div>
     </div>
 
-    <!-- TAOMLAR MENYUSI -->
     <h3 style="color:var(--gold-text); margin-top: 14px; margin-bottom: 10px;">🍽 Menyuni Tanlang:</h3>
     <div id="delivery-menu" class="pos-grid">Yuklanmoqda...</div>
 
-    <!-- MA'LUMOTLAR VA XARITA FORMASI -->
     <div class="order-form">
         <h3>📍 Yetkazib berish manzili:</h3>
         
@@ -375,7 +364,6 @@
         <input type="text" id="cust-address" placeholder="Tanlangan joylashuv koordinatasi" readonly>
     </div>
 
-    <!-- CART BOTTOM BAR -->
     <div class="cart-bar">
         <div>
             <div style="font-size:11px; color:#a1a1aa;">Jami taomlar: <span id="food-total">0</span> so'm</div>
@@ -387,10 +375,9 @@
 
     <script>
         const SUPABASE_URL = "https://wrrsvrgdinfmnuwewtoa.supabase.co";
-        // To'g'rilangan aniq Supabase Anon Key
         const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndycnN2cmdkaW5mbW51d2V3dG9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY5NzM0ODIsImV4cCI6MjEwMjU0OTQ4Mn0.YRHratsKVG42IY6YKokDycRy23oU8N3b7jO-o3tpQF4";
-        const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
+        
+        let db;
         const MIN_ORDER_AMOUNT = 48000;
         const CAFE_LOGO_URL = "https://i.ibb.co/YFZh8t0q/content.png";
 
@@ -405,6 +392,17 @@
 
         let selectedLat = cafeLat, selectedLng = cafeLng;
         let currentDeliveryFee = 0;
+
+        function getClient() {
+            if (!db) {
+                if (window.supabase && window.supabase.createClient) {
+                    db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+                } else {
+                    console.error("Supabase kutubxonasi yuklanmadi!");
+                }
+            }
+            return db;
+        }
 
         function calculateDistance(lat1, lon1, lat2, lon2) {
             const R = 6371;
@@ -431,15 +429,18 @@
         }
 
         async function initMapAndSettings() {
-            try {
-                const { data: set } = await db.from('delivery_settings').select('*').maybeSingle();
-                if (set) {
-                    zone1Km = set.zone1_km || zone1Km;
-                    zone1Price = set.zone1_price || zone1Price;
-                    zone2Km = set.zone2_km || zone2Km;
-                    zone2Price = set.zone2_price || zone2Price;
-                }
-            } catch(e) { console.log(e); }
+            const client = getClient();
+            if (client) {
+                try {
+                    const { data: set } = await client.from('delivery_settings').select('*').maybeSingle();
+                    if (set) {
+                        zone1Km = set.zone1_km || zone1Km;
+                        zone1Price = set.zone1_price || zone1Price;
+                        zone2Km = set.zone2_km || zone2Km;
+                        zone2Price = set.zone2_price || zone2Price;
+                    }
+                } catch(e) { console.log(e); }
+            }
 
             document.getElementById('z1-badge-info').innerText = `${zone1Km}km (${zone1Price.toLocaleString()} so'm)`;
             document.getElementById('z2-badge-info').innerText = `${zone2Km}km (${zone2Price.toLocaleString()} so'm)`;
@@ -453,7 +454,6 @@
                 attribution: '© OpenStreetMap'
             }).addTo(map);
 
-            // 1-ZONA
             circle1 = L.circle([cafeLat, cafeLng], {
                 color: '#10b981',
                 fillColor: '#10b981',
@@ -471,7 +471,6 @@
                 })
             }).addTo(map);
 
-            // 2-ZONA
             circle2 = L.circle([cafeLat, cafeLng], {
                 color: '#ef4444',
                 fillColor: '#ef4444',
@@ -489,7 +488,6 @@
                 })
             }).addTo(map);
 
-            // Kafe logotipi marker belgisi
             const cafeIcon = L.icon({
                 iconUrl: CAFE_LOGO_URL,
                 iconSize: [40, 40],
@@ -498,7 +496,6 @@
                 className: 'cafe-marker-icon'
             });
 
-            // Kafe belgisi va POPUP
             cafeMarker = L.marker([cafeLat, cafeLng], { icon: cafeIcon }).addTo(map);
             
             const popupHTML = `
@@ -509,7 +506,6 @@
             `;
             cafeMarker.bindPopup(popupHTML);
 
-            // Mijoz belgisi
             userMarker = L.marker([cafeLat, cafeLng], { draggable: true }).addTo(map);
 
             function updateCoords(lat, lng) {
@@ -542,10 +538,17 @@
         }
 
         async function loadMenu() {
-            const { data, error } = await db.from('menu').select('*');
+            const client = getClient();
+            if (!client) {
+                document.getElementById('delivery-menu').innerHTML = `<p style="color:#ef4444;">Kutubxona yuklanmadi</p>`;
+                return;
+            }
+
+            const { data, error } = await client.from('menu').select('*');
             if(error) {
-                console.error(error);
-                return alert("Menyu yuklanmadi");
+                console.error("Supabase xatosi:", error);
+                document.getElementById('delivery-menu').innerHTML = `<p style="color:#ef4444; font-size:12px;">Xatolik: ${error.message}</p>`;
+                return alert("Menyu yuklanmadi: " + error.message);
             }
 
             menuItems = data || [];
@@ -601,6 +604,9 @@
         }
 
         async function sendDeliveryOrder() {
+            const client = getClient();
+            if (!client) return alert("Ulanish xatosi!");
+
             const name = document.getElementById('cust-name').value.trim();
             const phone = document.getElementById('cust-phone').value.trim();
             const address = document.getElementById('cust-address').value;
@@ -634,7 +640,7 @@
             const grandTotal = totalFoodAmount + currentDeliveryFee;
             const statusText = `🛵 YETKAZISH: ${name} (${phone}) | Manzil: ${address} | Dostavka: ${currentDeliveryFee.toLocaleString()} so'm | Taomlar: ${orderItemsStr.join(', ')}`;
 
-            const { error } = await db.from('sales').insert([{
+            const { error } = await client.from('sales').insert([{
                 total_amount: grandTotal,
                 total_cost: totalCost,
                 profit: grandTotal - totalCost,
@@ -649,10 +655,10 @@
             }
         }
 
-        window.onload = () => {
+        window.addEventListener('DOMContentLoaded', () => {
             loadMenu();
             initMapAndSettings();
-        };
+        });
     </script>
 </body>
 </html>
