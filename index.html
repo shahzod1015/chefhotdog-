@@ -2,13 +2,14 @@
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CHEF Hotdog - Onlayn Buyurtma</title>
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CHEF Hotdog - Yetkazib berish</title>
+
     <link rel="apple-touch-icon" sizes="180x180" href="https://wrrsvrgdinfmnuwewtoa.supabase.co/storage/v1/object/public/menu-images/Untitled%20folder/content.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="https://wrrsvrgdinfmnuwewtoa.supabase.co/storage/v1/object/public/menu-images/Untitled%20folder/content.png">
+    <link rel="icon" type="image/png" href="https://wrrsvrgdinfmnuwewtoa.supabase.co/storage/v1/object/public/menu-images/Untitled%20folder/content.png">
     
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
@@ -19,311 +20,555 @@
             --gold-border: 1px solid rgba(212, 175, 55, 0.4);
             --gold-border-thin: 1px solid rgba(212, 175, 55, 0.25);
             --gold-text: #f5d061;
-            --card-bg: rgba(18, 18, 18, 0.9);
+            --card-bg: rgba(18, 18, 18, 0.95);
             --dark-bg: #0a0a0d;
+            --blue-accent: #3B82F6;
         }
 
-        * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 0; }
-        body { background: var(--dark-bg); color: #f1f5f9; padding: 10px; min-height: 100vh; }
-
-        .container { max-width: 480px; margin: 0 auto; background: var(--card-bg); border: var(--gold-border); border-radius: 20px; padding: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
+        * { 
+            box-sizing: border-box; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            margin: 0; 
+            padding: 0; 
+            touch-action: manipulation;
+            -webkit-text-size-adjust: 100%;
+        }
         
-        .header { text-align: center; margin-bottom: 14px; }
-        .header img { width: 70px; height: 70px; border-radius: 50%; border: 2px solid #d4af37; object-fit: cover; margin-bottom: 6px; }
-        .header h1 { font-size: 20px; background: var(--gold-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase; font-weight: 800; }
-        
-        .contacts { display: flex; gap: 8px; justify-content: center; margin-bottom: 12px; }
-        .contacts a { background: #1a1a22; border: var(--gold-border-thin); color: #fff; padding: 6px 12px; border-radius: 10px; text-decoration: none; font-size: 12px; font-weight: bold; }
+        body { 
+            background-color: var(--dark-bg);
+            background-image: radial-gradient(circle at 50% 0%, rgba(212, 175, 55, 0.08) 0%, transparent 60%);
+            padding: 12px; 
+            color: #f1f5f9; 
+            min-height: 100vh;
+            padding-bottom: 120px;
+            overflow-x: hidden;
+        }
 
-        .zones-info { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; font-size: 11px; text-align: center; }
-        .zone-box { padding: 8px; border-radius: 10px; border: 1px solid; }
-        .zone-1 { background: rgba(16, 185, 129, 0.1); border-color: #10b981; color: #34d399; }
-        .zone-2 { background: rgba(239, 68, 68, 0.1); border-color: #ef4444; color: #f87171; }
+        .sticky-top-section {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: var(--dark-bg);
+            padding-top: 4px;
+            padding-bottom: 8px;
+            margin-left: -12px;
+            margin-right: -12px;
+            padding-left: 12px;
+            padding-right: 12px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.8);
+        }
 
-        #client-map { width: 100%; height: 240px; border-radius: 14px; border: var(--gold-border-thin); margin: 8px 0; z-index: 1; }
+        .header-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            border: var(--gold-border);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6);
+            padding: 14px;
+            margin-bottom: 10px;
+        }
 
-        .menu-item { display: flex; gap: 10px; align-items: center; background: rgba(25,25,30,0.8); border: var(--gold-border-thin); padding: 8px; border-radius: 12px; margin-bottom: 8px; }
-        .menu-item img { width: 60px; height: 60px; border-radius: 10px; object-fit: cover; border: var(--gold-border-thin); }
-        .menu-info { flex-grow: 1; }
-        .menu-info h4 { font-size: 13px; color: #fff; margin-bottom: 2px; }
-        .menu-info .price { color: var(--gold-text); font-weight: bold; font-size: 13px; }
+        .header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
 
-        .qty-controls { display: flex; align-items: center; gap: 6px; }
-        .q-btn { width: 24px; height: 24px; background: #333; color: #fff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
-        
-        .bottom-bar { position: sticky; bottom: 10px; background: rgba(15,15,18,0.95); border: var(--gold-border); padding: 12px; border-radius: 14px; margin-top: 10px; backdrop-filter: blur(10px); }
-        .btn-order { width: 100%; background: var(--gold-btn-grad); color: #000; border: none; padding: 12px; border-radius: 10px; font-weight: 800; font-size: 15px; cursor: pointer; text-transform: uppercase; margin-top: 8px; }
+        .contacts-left {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex: 1;
+        }
+
+        .contact-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 10px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.04);
+            border: var(--gold-border-thin);
+            color: #f1f5f9;
+            text-decoration: none;
+            font-size: 11px;
+            font-weight: 600;
+            width: fit-content;
+        }
+
+        .contact-btn svg { width: 15px; height: 15px; flex-shrink: 0; }
+
+        .brand-right {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .brand-right img.logo-img {
+            width: 62px;
+            height: 62px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #d4af37;
+            box-shadow: 0 0 12px rgba(212, 175, 55, 0.4);
+            margin-bottom: 4px;
+        }
+
+        .brand-right h1 {
+            font-size: 15px;
+            background: var(--gold-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-transform: uppercase;
+        }
+
+        .header-subtext {
+            font-size: 10.5px;
+            color: #a1a1aa;
+            text-align: center;
+            margin-top: 8px;
+            padding-top: 6px;
+            border-top: 1px dashed rgba(212, 175, 55, 0.15);
+        }
+
+        .min-order-info {
+            background: rgba(59, 130, 246, 0.12) !important;
+            border: 1px solid var(--blue-accent) !important;
+            padding: 10px !important;
+            border-radius: 14px !important;
+            text-align: center !important;
+            font-size: 13px !important;
+            color: var(--blue-accent) !important;
+            font-weight: 700 !important;
+        }
+
+        .pos-grid { 
+            display: grid; 
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 12px; 
+            margin-bottom: 20px;
+        }
+
+        .pos-card { 
+            border: var(--gold-border-thin); 
+            border-radius: 16px; 
+            padding: 10px; 
+            text-align: center; 
+            background: linear-gradient(180deg, rgba(22, 22, 25, 0.9) 0%, rgba(12, 12, 14, 0.95) 100%); 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: space-between; 
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pos-card img { 
+            width: 100%; 
+            height: 110px; 
+            object-fit: cover; 
+            border-radius: 12px; 
+            border: var(--gold-border-thin); 
+            margin-bottom: 8px; 
+        }
+
+        .pos-card h4 { font-size: 13px; margin-bottom: 4px; color: #ffffff; font-weight: 700; }
+        .pos-card .price { color: var(--gold-text); font-weight: 800; font-size: 14px; margin-bottom: 8px; }
+
+        .qty-box { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 8px; }
+        .qty-btn { 
+            width: 28px; height: 28px; background: rgba(35, 30, 20, 0.8); color: var(--gold-text); 
+            border: var(--gold-border-thin); border-radius: 8px; font-weight: bold; cursor: pointer; 
+        }
+
+        .order-form {
+            background: var(--card-bg);
+            border: var(--gold-border-thin);
+            border-radius: 18px;
+            padding: 16px;
+            margin-top: 10px;
+        }
+
+        .order-form h3 { color: var(--gold-text); font-size: 16px; margin-bottom: 12px; }
+
+        input {
+            width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 10px;
+            border: var(--gold-border-thin); background: #08080a; color: #fff; font-size: 14px;
+        }
+
+        #map {
+            width: 100%;
+            height: 280px;
+            border-radius: 12px;
+            border: var(--gold-border-thin);
+            margin-bottom: 12px;
+            z-index: 1;
+        }
+
+        .zone-label-1 {
+            background: rgba(16, 185, 129, 0.95);
+            border: 1px solid #10b981;
+            color: #fff;
+            font-weight: bold;
+            font-size: 11px;
+            border-radius: 8px;
+            padding: 3px 8px;
+            text-align: center;
+        }
+
+        .zone-label-2 {
+            background: rgba(239, 68, 68, 0.95);
+            border: 1px solid #ef4444;
+            color: #fff;
+            font-weight: bold;
+            font-size: 11px;
+            border-radius: 8px;
+            padding: 3px 8px;
+            text-align: center;
+        }
+
+        .cart-bar {
+            position: fixed;
+            bottom: 12px;
+            left: 12px;
+            right: 12px;
+            background: rgba(20, 20, 24, 0.95);
+            border: var(--gold-border);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 12px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            z-index: 9999;
+        }
+
+        .btn-submit {
+            background: var(--gold-btn-grad);
+            color: #000;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-weight: 900;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        /* STOP LIST DIZAYNI (Aniq ko'rinadigan qilib yangilandi) */
+        .is-stopped { 
+            opacity: 0.6; 
+            pointer-events: none; 
+            filter: grayscale(40%);
+        }
+        .stop-badge {
+            position: absolute; 
+            top: 35%; 
+            left: 10px; 
+            right: 10px;
+            background: rgba(239, 68, 68, 0.95); 
+            color: #fff; 
+            font-size: 12px; 
+            font-weight: 900; 
+            padding: 8px; 
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #fff;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            z-index: 10;
+        }
+
+        .zone-badge-box { display: flex; gap: 8px; margin-bottom: 10px; }
+        .zone-badge { flex: 1; padding: 8px; border-radius: 8px; text-align: center; font-size: 11px; font-weight: bold; }
+        .cafe-marker-icon { border-radius: 50%; border: 2px solid #d4af37; object-fit: cover; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <div class="header">
-            <img src="https://wrrsvrgdinfmnuwewtoa.supabase.co/storage/v1/object/public/menu-images/Untitled%20folder/content.png" alt="Logo">
-            <h1>CHEF HOTDOG</h1>
-            <p style="font-size:11px; color:#aaa;">Onlayn buyurtma va tezkor yetkazib berish</p>
-        </div>
-
-        <div class="contacts">
-            <a href="tel:+998776301521">📞 +998 77 630 15 21</a>
-            <a href="https://t.me/chef_hotdog" target="_blank">✈️ Telegram</a>
-        </div>
-
-        <div id="min-order-alert" style="background:rgba(239,68,68,0.15); border:1px solid #ef4444; color:#f87171; padding:8px; border-radius:10px; font-size:12px; text-align:center; margin-bottom:10px; font-weight:bold;">
-            ⚠️ Minimal buyurtma summasi tekshirilmoqda...
-        </div>
-
-        <div class="zones-info">
-            <div class="zone-box zone-1">🟢 1-Zona (<span id="lbl-z1-km">0.7</span> km): <b id="lbl-z1-pr">5 000</b> so'm</div>
-            <div class="zone-box zone-2">🟡 2-Zona (<span id="lbl-z2-km">1.5</span> km): <b id="lbl-z2-pr">10 000</b> so'm</div>
-        </div>
-
-        <div style="font-size: 12px; font-weight: bold; color: var(--gold-text); margin-bottom: 4px;">📍 Joylashuvingizni xaritadan belgilang:</div>
-        <div id="client-map"></div>
-        <div style="font-size: 11px; background:#000; padding:6px; border-radius:8px; border:var(--gold-border-thin); text-align:center; color:#ccc;" id="gps-text">GPS tanlanmagan</div>
-
-        <!-- MIJOZ MA'LUMOTLARI -->
-        <div style="margin-top: 10px;">
-            <input type="text" id="client-name" placeholder="Ismingiz" style="width:100%; padding:10px; background:#000; color:#fff; border:var(--gold-border-thin); border-radius:8px; margin-bottom:6px; font-size:13px;">
-            <input type="tel" id="client-phone" placeholder="Telefon raqamingiz (+998 ...)" style="width:100%; padding:10px; background:#000; color:#fff; border:var(--gold-border-thin); border-radius:8px; margin-bottom:6px; font-size:13px;">
-            <input type="text" id="client-address" placeholder="Aniq manzil yoki mo'ljal" style="width:100%; padding:10px; background:#000; color:#fff; border:var(--gold-border-thin); border-radius:8px; margin-bottom:10px; font-size:13px;">
-        </div>
-
-        <h3 style="color:var(--gold-text); font-size:15px; margin-bottom:8px;">🍽 Menyu</h3>
-        <div id="client-menu-list">Yuklanmoqda...</div>
-
-        <div class="bottom-bar">
-            <div style="display:flex; justify-content:space-between; font-size:13px;">
-                <span>Jami taomlar: <b id="summary-food">0 so'm</b></span>
-                <span>Dostavka: <b id="summary-delivery">0 so'm</b></span>
+    <div class="sticky-top-section">
+        <div class="header-card">
+            <div class="header-row">
+                <div class="contacts-left">
+                    <a href="tel:+998776301521" class="contact-btn">📞 +998 77 630 15 21</a>
+                    <a href="https://t.me/chef_hotdog" target="_blank" class="contact-btn">💬 Telegram</a>
+                    <a href="https://instagram.com/chef__hotdog" target="_blank" class="contact-btn">📸 Instagram</a>
+                </div>
+                <div class="brand-right">
+                    <img src="https://wrrsvrgdinfmnuwewtoa.supabase.co/storage/v1/object/public/menu-images/Untitled%20folder/content.png" alt="CHEF Hotdog" class="logo-img">
+                    <h1>CHEF HOTDOG</h1>
+                </div>
             </div>
-            <div style="display:flex; justify-content:space-between; font-size:16px; margin-top:4px; font-weight:bold; color:var(--gold-text);">
-                <span>Jami to'lov:</span>
-                <span id="summary-total">0 so'm</span>
-            </div>
-            <button class="btn-order" onclick="buyurtmaBerish()">BUYURTMA BERISH 🚀</button>
+            <div class="header-subtext">🚀 Onlayn buyurtma va tezkor yetkazib berish</div>
         </div>
+
+        <div class="min-order-info" id="min-order-banner">
+            ⚠️ Eng kam buyurtma summasi: <b id="min-order-val">48 000</b> so'm
+        </div>
+    </div>
+
+    <h3 style="color:var(--gold-text); margin-top: 14px; margin-bottom: 10px;">🍽 Menyuni Tanlang:</h3>
+    <div id="delivery-menu" class="pos-grid">Yuklanmoqda...</div>
+
+    <div class="order-form">
+        <h3>📍 Yetkazib berish manzili:</h3>
+        <input type="text" id="cust-name" placeholder="Ismingiz" required>
+        <input type="tel" id="cust-phone" placeholder="Telefon raqamingiz (+998 ...)" required>
+        
+        <div class="zone-badge-box">
+            <div class="zone-badge" style="background:rgba(16, 185, 129, 0.15); border:1px solid #10b981; color:#10b981;">
+                🟢 1-Zona: <span id="z1-badge-info">...</span>
+            </div>
+            <div class="zone-badge" style="background:rgba(239, 68, 68, 0.15); border:1px solid #ef4444; color:#ef4444;">
+                🔴 2-Zona: <span id="z2-badge-info">...</span>
+            </div>
+        </div>
+
+        <p style="font-size:12px; color:#a1a1aa; margin-bottom: 6px;">Joylashuvingizni xaritadan belgilang:</p>
+        <div id="map"></div>
+        <input type="text" id="cust-address" placeholder="Tanlangan joylashuv koordinatasi" readonly>
+    </div>
+
+    <div class="cart-bar">
+        <div>
+            <div style="font-size:11px; color:#a1a1aa;">Jami taomlar: <span id="food-total">0</span> so'm</div>
+            <div style="font-size:11px; color:#a1a1aa;">Dostavka: <span id="delivery-cost">0</span> so'm</div>
+            <div id="cart-total" style="font-size:17px; font-weight:900; color:var(--gold-text);">0 so'm</div>
+        </div>
+        <button class="btn-submit" onclick="sendDeliveryOrder()">Buyurtma berish 🚀</button>
     </div>
 
     <script>
         const SUPABASE_URL = "https://wrrsvrgdinfmnuwewtoa.supabase.co";
         const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndycnN2cmdkaW5mbW51d2V3dG9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY5NzM0ODIsImV4cCI6MjEwMjU0OTQ4Mn0.YRHratsKVG42IY6YKokDycRy23oU8N3b7jO-o3tpQF4";
-        const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-        let clientMap, userMarker, zone1Circle, zone2Circle;
-        let cafeLat = 38.849449, cafeLng = 65.793410;
-        let z1Km = 0.7, z1Price = 5000, z1MinOrder = 48000;
-        let z2Km = 1.5, z2Price = 10000, z2MinOrder = 70000;
-
+        
+        let db;
         let cart = {};
-        let selectedLat = null, selectedLng = null;
-        let currentDeliveryPrice = 0;
-        let isOutOfZone = false;
+        let menuItems = [];
+        let map, userMarker, cafeMarker, circle1, circle2;
+
+        let cafeLat = 38.849449, cafeLng = 65.793410; 
+        let zone1Km = 0.7, zone1Price = 5000, zone1Min = 48000;
+        let zone2Km = 2.0, zone2Price = 10000, zone2Min = 70000;
+
+        let selectedLat = cafeLat, selectedLng = cafeLng;
+        let currentDeliveryFee = 0;
+        let currentDynamicMinOrder = 48000;
+
+        function getClient() {
+            if (!db && window.supabase) {
+                db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            }
+            return db;
+        }
 
         function calculateDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371; 
+            const R = 6371;
             const dLat = (lat2 - lat1) * Math.PI / 180;
             const dLon = (lon2 - lon1) * Math.PI / 180;
-            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                      Math.sin(dLon/2) * Math.sin(dLon/2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-            return R * c;
+            const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) ** 2;
+            return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
         }
 
-        async function initConfigAndMap() {
-            const { data } = await db.from('delivery_settings').select('*').maybeSingle();
-            if(data) {
-                cafeLat = data.cafe_lat || cafeLat;
-                cafeLng = data.cafe_lng || cafeLng;
-                z1Km = data.zone1_km || 0.7;
-                z1Price = data.zone1_price || 5000;
-                z1MinOrder = data.zone1_min_order || 48000;
-
-                z2Km = data.zone2_km || 1.5;
-                z2Price = data.zone2_price || 10000;
-                z2MinOrder = data.zone2_min_order || 70000;
-
-                document.getElementById('lbl-z1-km').innerText = z1Km;
-                document.getElementById('lbl-z1-pr').innerText = z1Price.toLocaleString();
-                document.getElementById('lbl-z2-km').innerText = z2Km;
-                document.getElementById('lbl-z2-pr').innerText = z2Price.toLocaleString();
-                document.getElementById('min-order-alert').innerText = `⚠️ Eng kam buyurtma: ${z1MinOrder.toLocaleString()} so'm (1-zona) / ${z2MinOrder.toLocaleString()} so'm (2-zona)`;
-            }
-
-            clientMap = L.map('client-map').setView([cafeLat, cafeLng], 14);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(clientMap);
-
-            // Radius doiralarini qayta chizish
-            zone1Circle = L.circle([cafeLat, cafeLng], {
-                radius: z1Km * 1000,
-                color: '#10b981',
-                fillColor: '#10b981',
-                fillOpacity: 0.1,
-                weight: 2
-            }).addTo(clientMap);
-
-            zone2Circle = L.circle([cafeLat, cafeLng], {
-                radius: z2Km * 1000,
-                color: '#ef4444',
-                fillColor: '#ef4444',
-                fillOpacity: 0.05,
-                weight: 2,
-                dashArray: '5, 5'
-            }).addTo(clientMap);
-
-            // Boshlang'ich nuqta kafeda turadi
-            selectedLat = cafeLat;
-            selectedLng = cafeLng;
-            userMarker = L.marker([cafeLat, cafeLng], { draggable: true }).addTo(clientMap);
-
-            userMarker.on('dragend', function(e) {
-                const pos = userMarker.getLatLng();
-                updateSelectedLocation(pos.lat, pos.lng);
-            });
-
-            clientMap.on('click', function(e) {
-                userMarker.setLatLng(e.latlng);
-                updateSelectedLocation(e.latlng.lat, e.latlng.lng);
-            });
-
-            updateSelectedLocation(cafeLat, cafeLng);
-            loadMenu();
-        }
-
-        function updateSelectedLocation(lat, lng) {
-            selectedLat = lat;
-            selectedLng = lng;
-            document.getElementById('gps-text').innerText = `GPS: ${lat.toFixed(5)}, ${lng.toFixed(5)}`;
-
-            const distKm = calculateDistance(cafeLat, cafeLng, lat, lng);
-
-            if (distKm <= z1Km) {
-                currentDeliveryPrice = z1Price;
-                isOutOfZone = false;
-                document.getElementById('min-order-alert').style.borderColor = '#10b981';
-                document.getElementById('min-order-alert').style.color = '#34d399';
-                document.getElementById('min-order-alert').style.background = 'rgba(16, 185, 129, 0.1)';
-                document.getElementById('min-order-alert').innerText = `✅ 1-Zona (Masofa: ${distKm.toFixed(2)} km). Dostavka: ${z1Price.toLocaleString()} so'm`;
-            } else if (distKm <= z2Km) {
-                currentDeliveryPrice = z2Price;
-                isOutOfZone = false;
-                document.getElementById('min-order-alert').style.borderColor = '#f59e0b';
-                document.getElementById('min-order-alert').style.color = '#fde047';
-                document.getElementById('min-order-alert').style.background = 'rgba(245, 158, 11, 0.1)';
-                document.getElementById('min-order-alert').innerText = `⚠️ 2-Zona (Masofa: ${distKm.toFixed(2)} km). Dostavka: ${z2Price.toLocaleString()} so'm`;
+        function updateDeliveryFee(lat, lng) {
+            const dist = calculateDistance(cafeLat, cafeLng, lat, lng);
+            if (dist <= zone1Km) {
+                currentDeliveryFee = zone1Price;
+                currentDynamicMinOrder = zone1Min;
             } else {
-                currentDeliveryPrice = 0;
-                isOutOfZone = true;
-                document.getElementById('min-order-alert').style.borderColor = '#ef4444';
-                document.getElementById('min-order-alert').style.color = '#f87171';
-                document.getElementById('min-order-alert').style.background = 'rgba(239, 68, 68, 0.15)';
-                document.getElementById('min-order-alert').innerText = `❌ Kechirasiz, manzil yetkazib berish zonasidan tashqarida (${distKm.toFixed(2)} km)!`;
+                currentDeliveryFee = zone2Price;
+                currentDynamicMinOrder = zone2Min;
             }
+            
+            document.getElementById('delivery-cost').innerText = currentDeliveryFee.toLocaleString();
+            document.getElementById('min-order-val').innerText = currentDynamicMinOrder.toLocaleString();
+            calculateTotal();
+        }
 
-            updateSummary();
+        async function loadSettings() {
+            const client = getClient();
+            if (!client) return;
+            try {
+                const { data: set } = await client.from('delivery_settings').select('*').maybeSingle();
+                if (set) {
+                    cafeLat = set.cafe_lat || cafeLat;
+                    cafeLng = set.cafe_lng || cafeLng;
+                    zone1Km = set.zone1_km || zone1Km;
+                    zone1Price = set.zone1_price || zone1Price;
+                    zone1Min = set.zone1_min_order !== undefined ? set.zone1_min_order : zone1Min;
+
+                    zone2Km = set.zone2_km || zone2Km;
+                    zone2Price = set.zone2_price || zone2Price;
+                    zone2Min = set.zone2_min_order !== undefined ? set.zone2_min_order : zone2Min;
+                }
+            } catch(e) { console.log(e); }
+
+            document.getElementById('z1-badge-info').innerText = `${zone1Km}km (${zone1Price.toLocaleString()} so'm)`;
+            document.getElementById('z2-badge-info').innerText = `${zone2Km}km (${zone2Price.toLocaleString()} so'm)`;
+            document.getElementById('min-order-val').innerText = zone1Min.toLocaleString();
+            currentDynamicMinOrder = zone1Min;
         }
 
         async function loadMenu() {
-            const { data } = await db.from('menu').select('*').eq('is_stopped', false);
+            const client = getClient();
+            if (!client) return;
+
+            const { data, error } = await client.from('menu').select('*').order('id', { ascending: true });
+            if (error) {
+                console.error("Menyu xatosi:", error);
+                return;
+            }
+
+            menuItems = data || [];
             let html = '';
-            (data || []).forEach(m => {
-                if(!cart[m.id]) cart[m.id] = 0;
+
+            menuItems.forEach(item => {
+                if (cart[item.id] === undefined) cart[item.id] = 0;
+                const isStopped = item.is_stopped === true || item.is_stopped === 'true';
+
                 html += `
-                <div class="menu-item">
-                    <img src="${m.image_url || 'https://via.placeholder.com/150'}" alt="${m.title}">
-                    <div class="menu-info">
-                        <h4>${m.title}</h4>
-                        <div class="price">${m.price.toLocaleString()} so'm</div>
+                <div class="pos-card ${isStopped ? 'is-stopped' : ''}">
+                    ${isStopped ? '<div class="stop-badge">🛑 STOP LIST</div>' : ''}
+                    <div>
+                        <img src="${item.image_url || 'https://via.placeholder.com/150'}" alt="${item.title}">
+                        <h4>${item.title}</h4>
+                        <div class="price">${item.price.toLocaleString()} so'm</div>
                     </div>
-                    <div class="qty-controls">
-                        <button class="q-btn" onclick="changeQty(${m.id}, -1)">-</button>
-                        <span id="qty-${m.id}" style="font-weight:bold; width:18px; text-align:center;">${cart[m.id]}</span>
-                        <button class="q-btn" onclick="changeQty(${m.id}, 1)">+</button>
+                    <div>
+                        <div class="qty-box">
+                            <button class="qty-btn" onclick="updateCart(${item.id}, -1)">-</button>
+                            <span id="qty-${item.id}" style="font-weight:bold;">${cart[item.id]}</span>
+                            <button class="qty-btn" onclick="updateCart(${item.id}, 1)">+</button>
+                        </div>
                     </div>
                 </div>`;
             });
-            document.getElementById('client-menu-list').innerHTML = html || '<p>Menyu bo\'sh</p>';
+
+            document.getElementById('delivery-menu').innerHTML = html;
         }
 
-        function changeQty(id, delta) {
-            cart[id] = (cart[id] || 0) + delta;
-            if(cart[id] < 0) cart[id] = 0;
-            document.getElementById(`qty-${id}`).innerText = cart[id];
-            updateSummary();
+        function updateCart(id, change) {
+            if (!cart[id]) cart[id] = 0;
+            cart[id] += change;
+            if (cart[id] < 0) cart[id] = 0;
+
+            const qtyEl = document.getElementById(`qty-${id}`);
+            if (qtyEl) qtyEl.innerText = cart[id];
+            calculateTotal();
         }
 
-        function updateSummary() {
+        function calculateTotal() {
             let foodTotal = 0;
-            let totalCost = 0;
-            // Dinamik hisoblash uchun menyuni olish
-            db.from('menu').select('*').then(({data}) => {
-                (data || []).forEach(m => {
-                    let q = cart[m.id] || 0;
-                    foodTotal += (m.price || 0) * q;
-                    totalCost += (m.cost || 0) * q;
-                });
-
-                document.getElementById('summary-food').innerText = foodTotal.toLocaleString() + ' so'm';
-                document.getElementById('summary-delivery').innerText = currentDeliveryPrice.toLocaleString() + ' so'm';
-                document.getElementById('summary-total').innerText = (foodTotal + currentDeliveryPrice).toLocaleString() + ' so'm';
+            menuItems.forEach(item => {
+                if (cart[item.id]) foodTotal += cart[item.id] * item.price;
             });
+
+            document.getElementById('food-total').innerText = foodTotal.toLocaleString();
+            const grandTotal = foodTotal + (foodTotal > 0 ? currentDeliveryFee : 0);
+            document.getElementById('cart-total').innerText = grandTotal.toLocaleString() + " so'm";
+            return foodTotal;
         }
 
-        async function buyurtmaBerish() {
-            if (isOutOfZone) {
-                return alert("❌ Xatolik: Manzilingiz yetkazib berish radiusidan tashqarida! Iltimos, doira ichidan joy tanlang.");
+        async function initApp() {
+            await loadSettings();
+            await loadMenu();
+
+            map = L.map('map').setView([cafeLat, cafeLng], 14);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+            const cafeIcon = L.icon({
+                iconUrl: "https://wrrsvrgdinfmnuwewtoa.supabase.co/storage/v1/object/public/menu-images/Untitled%20folder/content.png",
+                iconSize: [40, 40],
+                iconAnchor: [20, 20],
+                className: 'cafe-marker-icon'
+            });
+
+            cafeMarker = L.marker([cafeLat, cafeLng], { icon: cafeIcon }).addTo(map);
+            userMarker = L.marker([cafeLat, cafeLng], { draggable: true }).addTo(map);
+
+            function updateCoords(lat, lng) {
+                selectedLat = lat;
+                selectedLng = lng;
+                document.getElementById('cust-address').value = `GPS: ${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+                updateDeliveryFee(lat, lng);
             }
 
-            const name = document.getElementById('client-name').value.trim();
-            const phone = document.getElementById('client-phone').value.trim();
-            const address = document.getElementById('client-address').value.trim();
+            updateCoords(cafeLat, cafeLng);
 
-            if(!name || !phone || !address) return alert("Iltimos, Ism, Telefon va Manzilni to'ldiring!");
+            map.on('click', e => {
+                userMarker.setLatLng(e.latlng);
+                updateCoords(e.latlng.lat, e.latlng.lng);
+            });
 
-            let foodTotal = 0;
+            userMarker.on('dragend', () => {
+                const coord = userMarker.getLatLng();
+                updateCoords(coord.lat, coord.lng);
+            });
+
+            // Realtime tinglovchi: Admin panelda o'zgarish bo'lsa, mijoz ilovasi avtomatik yangilaydi
+            const client = getClient();
+            if (client) {
+                client.channel('public:menu')
+                    .on('postgres_changes', { event: '*', schema: 'public', table: 'menu' }, () => {
+                        loadMenu();
+                    })
+                    .subscribe();
+
+                client.channel('public:delivery_settings')
+                    .on('postgres_changes', { event: '*', schema: 'public', table: 'delivery_settings' }, () => {
+                        loadSettings();
+                    })
+                    .subscribe();
+            }
+        }
+
+        async function sendDeliveryOrder() {
+            const client = getClient();
+            if (!client) return alert("Ulanish xatosi!");
+
+            const name = document.getElementById('cust-name').value.trim();
+            const phone = document.getElementById('cust-phone').value.trim();
+            const address = document.getElementById('cust-address').value;
+
+            if (!name || !phone) return alert("Ismingiz va telefon raqamingizni kiriting!");
+
+            let orderItemsStr = [];
+            let totalFoodAmount = 0;
             let totalCost = 0;
-            let orderItemsDesc = [];
 
-            const { data: menuData } = await db.from('menu').select('*');
-            (menuData || []).forEach(m => {
-                let q = cart[m.id] || 0;
-                if(q > 0) {
-                    foodTotal += m.price * q;
-                    totalCost += (m.cost || 0) * q;
-                    orderItemsDesc.push(`${m.title} (x${q})`);
+            menuItems.forEach(item => {
+                const qty = cart[item.id] || 0;
+                if (qty > 0) {
+                    orderItemsStr.push(`${item.title} (x${qty})`);
+                    totalFoodAmount += item.price * qty;
+                    totalCost += (item.cost || 0) * qty;
                 }
             });
 
-            if(orderItemsDesc.length === 0) return alert("Savatcha bo'sh! Taom tanlang.");
+            if (orderItemsStr.length === 0) return alert("Kamida bitta taom tanlang!");
 
-            // Minimal summa tekshiruvi
-            let requiredMin = z1MinOrder;
-            const distKm = calculateDistance(cafeLat, cafeLng, selectedLat, selectedLng);
-            if (distKm > z1Km && distKm <= z2Km) requiredMin = z2MinOrder;
-
-            if (foodTotal < requiredMin) {
-                return alert(`❌ Tanlangan hudud uchun eng kam buyurtma summasi ${requiredMin.toLocaleString()} so'm bo'lishi kerak! (Sizda: ${foodTotal.toLocaleString()} so'm)`);
+            if (totalFoodAmount < currentDynamicMinOrder) {
+                return alert(`⚠️ Tanlangan hudud uchun eng kam buyurtma summasi ${currentDynamicMinOrder.toLocaleString()} so'm!`);
             }
 
-            const grandTotal = foodTotal + currentDeliveryPrice;
-            const statusStr = `Dostavka: ${name} (${phone}) - ${address}. Taomlar: ${orderItemsDesc.join(', ')}. Dostavka: ${currentDeliveryPrice} so'm. GPS: ${selectedLat.toFixed(5)}, ${selectedLng.toFixed(5)}`;
+            const grandTotal = totalFoodAmount + currentDeliveryFee;
+            const statusText = `🛵 YETKAZISH: ${name} (${phone}) | Manzil: ${address} | GPS: ${selectedLat.toFixed(5)}, ${selectedLng.toFixed(5)} | Dostavka: ${currentDeliveryFee.toLocaleString()} so'm | Taomlar: ${orderItemsStr.join(', ')}`;
 
-            const { error } = await db.from('sales').insert([{
+            const { error } = await client.from('sales').insert([{
                 total_amount: grandTotal,
                 total_cost: totalCost,
-                profit: (foodTotal - totalCost),
-                status: statusStr
+                profit: grandTotal - totalCost,
+                status: statusText
             }]);
 
-            if(error) alert("Xatolik: " + error.message);
-            else {
-                alert("✅ Buyurtmangiz muvaffaqiyatli yuborildi! Tez orada siz bilan bog'lanamiz.");
+            if (error) {
+                alert("Xatolik: " + error.message);
+            } else {
+                alert("✅ Buyurtmangiz qabul qilindi!");
                 location.reload();
             }
         }
 
-        window.addEventListener('DOMContentLoaded', initConfigAndMap);
+        window.addEventListener('DOMContentLoaded', initApp);
     </script>
 </body>
 </html>
