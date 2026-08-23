@@ -682,12 +682,12 @@
             let paymentStatusTg = '';
             let statusText = '';
 
-            // Admin panel tugmasi buzilmasligi uchun status matnini toza va xavfsiz formatga keltirdik
+            // Admin panel to'g'ri rangga bo'yashi uchun NAQD PUL va TO'LANGAN so'zlarini aynan boshiga yozdik
             if (payMethod === 'card') {
-                statusText = `YETKAZISH: ${name} (${phone}) | TO'LANGAN | Manzil: ${address} | Dostavka: ${currentDeliveryFee.toLocaleString()} so'm | Taomlar: ${orderItemsStr.join(', ')}`;
+                statusText = `TO'LANGAN | YETKAZISH: ${name} (${phone}) | Manzil: ${address} | Dostavka: ${currentDeliveryFee.toLocaleString()} so'm | Taomlar: ${orderItemsStr.join(', ')}`;
                 paymentStatusTg = `🟢 <b>TO'LANGAN</b> (Karta/QR orqali)\n📎 Chek fayli: <a href="${receiptFileUrl}" target="_blank">Chekni ochish / yuklab olish</a>`;
             } else {
-                statusText = `YETKAZISH: ${name} (${phone}) | NAQD PUL | Manzil: ${address} | Dostavka: ${currentDeliveryFee.toLocaleString()} so'm | Taomlar: ${orderItemsStr.join(', ')}`;
+                statusText = `NAQD PUL | YETKAZISH: ${name} (${phone}) | Manzil: ${address} | Dostavka: ${currentDeliveryFee.toLocaleString()} so'm | Taomlar: ${orderItemsStr.join(', ')}`;
                 paymentStatusTg = '🔴 <b>To\'lov naqd pul asosida</b>';
             }
 
