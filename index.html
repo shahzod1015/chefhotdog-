@@ -288,8 +288,8 @@
         let menuItems = [];
         let map, userMarker, cafeMarker, circle1, circle2;
 
-        // KAFE KOORDINATASI
-        let cafeLat = 38.849449, cafeLng = 65.793410; 
+        // KAFE KOORDINATASI (Majburiy biriktirildi)
+        const cafeLat = 38.849449, cafeLng = 65.793410; 
         
         let zone1Km = 0.7, zone1Price = 5000;
         let zone2Km = 2.0, zone2Price = 10000;
@@ -325,8 +325,6 @@
             try {
                 const { data: set } = await db.from('delivery_settings').select('*').maybeSingle();
                 if (set) {
-                    cafeLat = set.cafe_lat || cafeLat;
-                    cafeLng = set.cafe_lng || cafeLng;
                     zone1Km = set.zone1_km || zone1Km;
                     zone1Price = set.zone1_price || zone1Price;
                     zone2Km = set.zone2_km || zone2Km;
