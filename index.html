@@ -226,6 +226,13 @@
             font-size: 12px;
             font-weight: bold;
         }
+
+        .cafe-marker-icon {
+            border-radius: 50%;
+            border: 2px solid #d4af37;
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.6);
+            object-fit: cover;
+        }
     </style>
 </head>
 <body>
@@ -283,6 +290,7 @@
         const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         const MIN_ORDER_AMOUNT = 48000;
+        const CAFE_LOGO_URL = "https://i.ibb.co/YFZh8t0q/content.png";
 
         let cart = {};
         let menuItems = [];
@@ -382,9 +390,23 @@
                 })
             }).addTo(map);
 
-            // Kafe markazi
-            cafeMarker = L.marker([cafeLat, cafeLng]).addTo(map)
-                .bindPopup("<b>🍔 CHEF Hotdog Kafe</b>");
+            // Kafe logotipi uchun maxsus xarita belgisi
+            const cafeIcon = L.icon({
+                iconUrl: CAFE_LOGO_URL,
+                iconSize: [38, 38],
+                iconAnchor: [19, 19],
+                popupAnchor: [0, -20],
+                className: 'cafe-marker-icon'
+            });
+
+            // Kafe markazi va logotipli popup
+            cafeMarker = L.marker([cafeLat, cafeLng], { icon: cafeIcon }).addTo(map)
+                .bindPopup(`
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <img src="${CAFE_LOGO_URL}" style="width: 24px; height: 24px; border-radius: 50%; border: 1px solid #d4af37;">
+                        <b style="color: #000;">CHEF Hotdog Kafe</b>
+                    </div>
+                `);
 
             // Mijoz belgisi
             userMarker = L.marker([cafeLat, cafeLng], { draggable: true }).addTo(map);
