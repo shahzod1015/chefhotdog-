@@ -2,7 +2,8 @@
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Zoom jarayonini va kattalashib ketishini to'liq taqiqlovchi meta teg -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>CHEF Hotdog - Yetkazib berish</title>
 
     <!-- App Icon -->
@@ -22,12 +23,20 @@
             --gold-border: 1px solid rgba(212, 175, 55, 0.4);
             --gold-border-thin: 1px solid rgba(212, 175, 55, 0.25);
             --gold-text: #f5d061;
-            --card-bg: rgba(18, 18, 18, 0.9);
+            --card-bg: rgba(18, 18, 18, 0.95);
             --dark-bg: #0a0a0d;
             --blue-accent: #3B82F6;
         }
 
-        * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 0; }
+        * { 
+            box-sizing: border-box; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            margin: 0; 
+            padding: 0; 
+            /* Ekranni kattalashtirib yuborish va keraksiz zoom effekti oldini olish */
+            touch-action: manipulation;
+            -webkit-text-size-adjust: 100%;
+        }
         
         body { 
             background-color: var(--dark-bg);
@@ -36,6 +45,22 @@
             color: #f1f5f9; 
             min-height: 100vh;
             padding-bottom: 120px;
+            overflow-x: hidden; /* Gorizontal skroll bo'lishini taqiqlaydi */
+        }
+
+        /* STICKY TOP CONTAINER (Logo va Limit bloki skroll bo'lganda tepada qoladi) */
+        .sticky-top-section {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: var(--dark-bg);
+            padding-top: 4px;
+            padding-bottom: 8px;
+            margin-left: -12px;
+            margin-right: -12px;
+            padding-left: 12px;
+            padding-right: 12px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.8);
         }
 
         .header {
@@ -43,19 +68,19 @@
             align-items: center;
             justify-content: center;
             flex-direction: column;
-            gap: 8px;
-            padding: 16px;
+            gap: 6px;
+            padding: 12px;
             background: var(--card-bg);
             border-radius: 20px;
             border: var(--gold-border);
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6);
-            margin-bottom: 16px;
+            margin-bottom: 10px;
             text-align: center;
         }
 
         .header img {
-            width: 75px;
-            height: 75px;
+            width: 65px;
+            height: 65px;
             border-radius: 50%;
             object-fit: cover;
             border: 2px solid #d4af37;
@@ -63,7 +88,7 @@
         }
 
         .header h1 {
-            font-size: 22px;
+            font-size: 20px;
             background: var(--gold-gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -72,19 +97,18 @@
         }
 
         .header p {
-            font-size: 12px;
+            font-size: 11px;
             color: #a1a1aa;
         }
 
         .min-order-info {
             background: rgba(59, 130, 246, 0.12) !important;
             border: 1px solid var(--blue-accent) !important;
-            padding: 12px !important;
+            padding: 10px !important;
             border-radius: 14px !important;
             text-align: center !important;
-            font-size: 14px !important;
+            font-size: 13px !important;
             color: var(--blue-accent) !important;
-            margin-bottom: 16px !important;
             font-weight: 700 !important;
             box-shadow: 0 0 12px rgba(59, 130, 246, 0.25) !important;
         }
@@ -237,20 +261,21 @@
 </head>
 <body>
 
-    <!-- HEADER LOGO -->
-    <div class="header">
-        <img src="https://i.ibb.co/YFZh8t0q/content.png" alt="CHEF Hotdog">
-        <h1>CHEF HOTDOG</h1>
-        <p>🚀 Onlayn buyurtma va tezkor yetkazib berish</p>
-    </div>
+    <!-- QIMIRLAMAYDIGAN TAPA QISM (STICKY HEADER + LIMIT) -->
+    <div class="sticky-top-section">
+        <div class="header">
+            <img src="https://i.ibb.co/YFZh8t0q/content.png" alt="CHEF Hotdog">
+            <h1>CHEF HOTDOG</h1>
+            <p>🚀 Onlayn buyurtma va tezkor yetkazib berish</p>
+        </div>
 
-    <!-- MINIMUM LIMIT BILDIRISHNOMASI -->
-    <div class="min-order-info">
-        ⚠️ Eng kam buyurtma summasi: <b>48 000 so'm</b>
+        <div class="min-order-info">
+            ⚠️ Eng kam buyurtma summasi: <b>48 000 so'm</b>
+        </div>
     </div>
 
     <!-- TAOMLAR MENYUSI -->
-    <h3 style="color:var(--gold-text); margin-bottom: 10px;">🍽 Menyuni Tanlang:</h3>
+    <h3 style="color:var(--gold-text); margin-top: 14px; margin-bottom: 10px;">🍽 Menyuni Tanlang:</h3>
     <div id="delivery-menu" class="pos-grid">Yuklanmoqda...</div>
 
     <!-- MA'LUMOTLAR VA XARITA FORMASI -->
@@ -396,7 +421,7 @@
                 className: 'cafe-marker-icon'
             });
 
-            // Kafe belgisi va POPUP (EMOJI TIKLANMAYDI, FAQAT RASM)
+            // Kafe belgisi va POPUP (EMOJI ISHLATILMAGAN, LOGO RASMI)
             cafeMarker = L.marker([cafeLat, cafeLng], { icon: cafeIcon }).addTo(map);
             
             const popupHTML = `
