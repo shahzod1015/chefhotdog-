@@ -6,10 +6,10 @@
     <title>CHEF Hotdog - Yetkazib berish</title>
 
     <!-- App Icon -->
-    <link rel="apple-touch-icon" sizes="180x180" href="https://i.ibb.co/YFZh8t0q/content.png">
-    <link rel="icon" type="image/png" href="https://i.ibb.co/YFZh8t0q/content.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="https://wrrsvrgdinfmnuwewtoa.supabase.co/storage/v1/object/public/menu-images/Untitled%20folder/content.png">
+    <link rel="icon" type="image/png" href="https://wrrsvrgdinfmnuwewtoa.supabase.co/storage/v1/object/public/menu-images/Untitled%20folder/content.png">
     
-    <!-- Supabase JS CDN (Rasmiy ishlaydigan xavfsiz havola) -->
+    <!-- Supabase JS CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
     
     <!-- OpenStreetMap Leaflet Xarita JS va CSS -->
@@ -100,11 +100,6 @@
             width: fit-content;
         }
 
-        .contact-btn:active {
-            transform: scale(0.96);
-            background: rgba(212, 175, 55, 0.2);
-        }
-
         .contact-btn svg {
             width: 15px;
             height: 15px;
@@ -158,8 +153,6 @@
             font-weight: 700 !important;
             box-shadow: 0 0 12px rgba(59, 130, 246, 0.25) !important;
         }
-
-        .min-order-info b { color: var(--blue-accent) !important; }
 
         .pos-grid { 
             display: grid; 
@@ -278,8 +271,8 @@
 
         .is-stopped { opacity: 0.4; pointer-events: none; }
         .is-stopped::after {
-            content: "STOP LIST"; position: absolute; top: 40%; left: 10%; right: 10%;
-            background: #ef4444; color: #fff; font-size: 11px; font-weight: 900; padding: 4px; border-radius: 6px;
+            content: "🛑 STOP LIST"; position: absolute; top: 35%; left: 5%; right: 5%;
+            background: rgba(239, 68, 68, 0.95); color: #fff; font-size: 13px; font-weight: 900; padding: 6px; border-radius: 8px;
         }
 
         .zone-badge-box {
@@ -293,7 +286,7 @@
             padding: 8px;
             border-radius: 8px;
             text-align: center;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: bold;
         }
 
@@ -326,7 +319,7 @@
                 </div>
 
                 <div class="brand-right">
-                    <img src="https://i.ibb.co/YFZh8t0q/content.png" alt="CHEF Hotdog" class="logo-img">
+                    <img src="https://wrrsvrgdinfmnuwewtoa.supabase.co/storage/v1/object/public/menu-images/Untitled%20folder/content.png" alt="CHEF Hotdog" class="logo-img">
                     <h1>CHEF HOTDOG</h1>
                 </div>
             </div>
@@ -336,8 +329,8 @@
             </div>
         </div>
 
-        <div class="min-order-info">
-            ⚠️ Eng kam buyurtma summasi: <b>48 000 so'm</b>
+        <div class="min-order-info" id="min-order-banner">
+            ⚠️ Eng kam buyurtma summasi: <b id="min-order-val">48 000</b> so'm
         </div>
     </div>
 
@@ -351,10 +344,10 @@
         <input type="tel" id="cust-phone" placeholder="Telefon raqamingiz (+998 ...)" required>
         
         <div class="zone-badge-box">
-            <div class="zone-badge" style="background:rgba(16, 185, 129, 0.15); border:1px solid #10b981; color:#10b981;">
+            <div class="zone-badge" style="background:rgba(16, 185, 129, 0.15); border:1px solid #10b981; color:#10b981;" id="z1-badge-box">
                 🟢 1-Zona: <span id="z1-badge-info">...</span>
             </div>
-            <div class="zone-badge" style="background:rgba(239, 68, 68, 0.15); border:1px solid #ef4444; color:#ef4444;">
+            <div class="zone-badge" style="background:rgba(239, 68, 68, 0.15); border:1px solid #ef4444; color:#ef4444;" id="z2-badge-box">
                 🔴 2-Zona: <span id="z2-badge-info">...</span>
             </div>
         </div>
@@ -378,20 +371,21 @@
         const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndycnN2cmdkaW5mbW51d2V3dG9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY5NzM0ODIsImV4cCI6MjEwMjU0OTQ4Mn0.YRHratsKVG42IY6YKokDycRy23oU8N3b7jO-o3tpQF4";
         
         let db;
-        const MIN_ORDER_AMOUNT = 48000;
-        const CAFE_LOGO_URL = "https://i.ibb.co/YFZh8t0q/content.png";
+        let defaultMinOrder = 48000;
+        const CAFE_LOGO_URL = "https://wrrsvrgdinfmnuwewtoa.supabase.co/storage/v1/object/public/menu-images/Untitled%20folder/content.png";
 
         let cart = {};
         let menuItems = [];
         let map, userMarker, cafeMarker, circle1, circle2;
 
-        const cafeLat = 38.849449, cafeLng = 65.793410; 
+        let cafeLat = 38.849449, cafeLng = 65.793410; 
         
-        let zone1Km = 0.7, zone1Price = 5000;
-        let zone2Km = 2.0, zone2Price = 10000;
+        let zone1Km = 0.7, zone1Price = 5000, zone1Min = 48000;
+        let zone2Km = 2.0, zone2Price = 10000, zone2Min = 70000;
 
         let selectedLat = cafeLat, selectedLng = cafeLng;
         let currentDeliveryFee = 0;
+        let currentDynamicMinOrder = 48000;
 
         function getClient() {
             if (!db) {
@@ -419,12 +413,17 @@
             const dist = calculateDistance(cafeLat, cafeLng, lat, lng);
             if (dist <= zone1Km) {
                 currentDeliveryFee = zone1Price;
+                currentDynamicMinOrder = zone1Min;
             } else if (dist <= zone2Km) {
                 currentDeliveryFee = zone2Price;
+                currentDynamicMinOrder = zone2Min;
             } else {
                 currentDeliveryFee = zone2Price;
+                currentDynamicMinOrder = zone2Min; // Standart uzoq zona
             }
+            
             document.getElementById('delivery-cost').innerText = currentDeliveryFee.toLocaleString();
+            document.getElementById('min-order-val').innerText = currentDynamicMinOrder.toLocaleString();
             calculateTotal();
         }
 
@@ -434,16 +433,22 @@
                 try {
                     const { data: set } = await client.from('delivery_settings').select('*').maybeSingle();
                     if (set) {
+                        cafeLat = set.cafe_lat || cafeLat;
+                        cafeLng = set.cafe_lng || cafeLng;
                         zone1Km = set.zone1_km || zone1Km;
                         zone1Price = set.zone1_price || zone1Price;
+                        zone1Min = set.zone1_min_order || zone1Min;
+
                         zone2Km = set.zone2_km || zone2Km;
                         zone2Price = set.zone2_price || zone2Price;
+                        zone2Min = set.zone2_min_order || zone2Min;
                     }
                 } catch(e) { console.log(e); }
             }
 
             document.getElementById('z1-badge-info').innerText = `${zone1Km}km (${zone1Price.toLocaleString()} so'm)`;
             document.getElementById('z2-badge-info').innerText = `${zone2Km}km (${zone2Price.toLocaleString()} so'm)`;
+            document.getElementById('min-order-val').innerText = zone1Min.toLocaleString();
 
             selectedLat = cafeLat;
             selectedLng = cafeLng;
@@ -544,7 +549,7 @@
                 return;
             }
 
-            const { data, error } = await client.from('menu').select('*');
+            const { data, error } = await client.from('menu').select('*').order('id', { ascending: true });
             if(error) {
                 console.error("Supabase xatosi:", error);
                 document.getElementById('delivery-menu').innerHTML = `<p style="color:#ef4444; font-size:12px;">Xatolik: ${error.message}</p>`;
@@ -552,12 +557,11 @@
             }
 
             menuItems = data || [];
-            let stopList = JSON.parse(localStorage.getItem('chef_stop_list')) || [];
             let html = '';
 
             menuItems.forEach(item => {
-                const isStopped = stopList.includes(item.id);
-                cart[item.id] = 0;
+                if (cart[item.id] === undefined) cart[item.id] = 0;
+                const isStopped = item.is_stopped;
 
                 html += `
                 <div class="pos-card ${isStopped ? 'is-stopped' : ''}">
@@ -569,7 +573,7 @@
                     <div>
                         <div class="qty-box">
                             <button class="qty-btn" onclick="updateCart(${item.id}, -1)">-</button>
-                            <span id="qty-${item.id}" style="font-weight:bold;">0</span>
+                            <span id="qty-${item.id}" style="font-weight:bold;">${cart[item.id]}</span>
                             <button class="qty-btn" onclick="updateCart(${item.id}, 1)">+</button>
                         </div>
                     </div>
@@ -584,7 +588,8 @@
             cart[id] += change;
             if (cart[id] < 0) cart[id] = 0;
 
-            document.getElementById(`qty-${id}`).innerText = cart[id];
+            const qtyEl = document.getElementById(`qty-${id}`);
+            if (qtyEl) qtyEl.innerText = cart[id];
             calculateTotal();
         }
 
@@ -632,13 +637,13 @@
                 return alert("Kamida bitta taom tanlang!");
             }
 
-            if (totalFoodAmount < MIN_ORDER_AMOUNT) {
-                const needed = MIN_ORDER_AMOUNT - totalFoodAmount;
-                return alert(`⚠️ Eng kam yetkazib berish summasi ${MIN_ORDER_AMOUNT.toLocaleString()} so'm!\n\nTaomlar summasi: ${totalFoodAmount.toLocaleString()} so'm.\nYana ${needed.toLocaleString()} so'mlik taom qo'shing.`);
+            if (totalFoodAmount < currentDynamicMinOrder) {
+                const needed = currentDynamicMinOrder - totalFoodAmount;
+                return alert(`⚠️ Tanlangan hudud uchun eng kam buyurtma summasi ${currentDynamicMinOrder.toLocaleString()} so'm!\n\nTaomlar summasi: ${totalFoodAmount.toLocaleString()} so'm.\nYana ${needed.toLocaleString()} so'mlik taom qo'shing.`);
             }
 
             const grandTotal = totalFoodAmount + currentDeliveryFee;
-            const statusText = `🛵 YETKAZISH: ${name} (${phone}) | Manzil: ${address} | Dostavka: ${currentDeliveryFee.toLocaleString()} so'm | Taomlar: ${orderItemsStr.join(', ')}`;
+            const statusText = `🛵 YETKAZISH: ${name} (${phone}) | Manzil: ${address} | GPS: ${selectedLat.toFixed(6)}, ${selectedLng.toFixed(6)} | Dostavka: ${currentDeliveryFee.toLocaleString()} so'm | Taomlar: ${orderItemsStr.join(', ')}`;
 
             const { error } = await client.from('sales').insert([{
                 total_amount: grandTotal,
@@ -656,8 +661,8 @@
         }
 
         window.addEventListener('DOMContentLoaded', () => {
-            loadMenu();
             initMapAndSettings();
+            loadMenu();
         });
     </script>
 </body>
