@@ -205,26 +205,18 @@
             z-index: 1;
         }
 
-        .zone-label-1 {
-            background: rgba(16, 185, 129, 0.95);
-            border: 1px solid #10b981;
-            color: #fff;
-            font-weight: bold;
-            font-size: 11px;
-            border-radius: 8px;
-            padding: 3px 8px;
-            text-align: center;
-        }
-
-        .zone-label-2 {
-            background: rgba(239, 68, 68, 0.95);
+        /* Ogohlantirish bloki (Radiusdan tashqariga chiqilganda chiqadi) */
+        #out-of-zone-warning {
+            display: none;
+            background: rgba(239, 68, 68, 0.2);
             border: 1px solid #ef4444;
-            color: #fff;
+            color: #ef4444;
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 13px;
             font-weight: bold;
-            font-size: 11px;
-            border-radius: 8px;
-            padding: 3px 8px;
             text-align: center;
+            margin-bottom: 10px;
         }
 
         .cart-bar {
@@ -255,7 +247,6 @@
             text-transform: uppercase;
         }
 
-        /* STOP LIST DIZAYNI (Aniq ko'rinadigan qilib yangilandi) */
         .is-stopped { 
             opacity: 0.6; 
             pointer-events: none; 
@@ -311,6 +302,10 @@
 
     <div class="order-form">
         <h3>📍 Yetkazib berish manzili:</h3>
+        
+        <!-- Xabarnoma qismi -->
+        <div id="out-of-zone-warning">❌ Bu yerda dastavka xizmati mavjud emas!</div>
+
         <input type="text" id="cust-name" placeholder="Ismingiz" required>
         <input type="tel" id="cust-phone" placeholder="Telefon raqamingiz (+998 ...)" required>
         
@@ -353,6 +348,7 @@
         let selectedLat = cafeLat, selectedLng = cafeLng;
         let currentDeliveryFee = 0;
         let currentDynamicMinOrder = 48000;
+        let isWithinDeliveryZone = true;
 
         function getClient() {
             if (!db && window.supabase) {
@@ -371,12 +367,24 @@
 
         function updateDeliveryFee(lat, lng) {
             const dist = calculateDistance(cafeLat, cafeLng, lat, lng);
-            if (dist <= zone1Km) {
-                currentDeliveryFee = zone1Price;
-                currentDynamicMinOrder = zone1Min;
+            const warningEl = document.getElementById('out-of-zone-warning');
+
+            // 2-zonadan (maksimal masofadan) tashqarida ekanligini tekshirish
+            if (dist > zone2Km) {
+                isWithinDeliveryZone = false;
+                warningEl.style.display = 'block';
+                currentDeliveryFee = 0;
             } else {
-                currentDeliveryFee = zone2Price;
-                currentDynamicMinOrder = zone2Min;
+                isWithinDeliveryZone = true;
+                warningEl.style.display = 'none';
+
+                if (dist <= zone1Km) {
+                    currentDeliveryFee = zone1Price;
+                    currentDynamicMinOrder = zone1Min;
+                } else {
+                    currentDeliveryFee = zone2Price;
+                    currentDynamicMinOrder = zone2Min;
+                }
             }
             
             document.getElementById('delivery-cost').innerText = currentDeliveryFee.toLocaleString();
@@ -406,6 +414,14 @@
             document.getElementById('z2-badge-info').innerText = `${zone2Km}km (${zone2Price.toLocaleString()} so'm)`;
             document.getElementById('min-order-val').innerText = zone1Min.toLocaleString();
             currentDynamicMinOrder = zone1Min;
+
+            // Xaritadagi radius doiralarini yangilash
+            if (circle1 && circle2 && map) {
+                circle1.setLatLng([cafeLat, cafeLng]);
+                circle1.setRadius(zone1Km * 1000);
+                circle2.setLatLng([cafeLat, cafeLng]);
+                circle2.setRadius(zone2Km * 1000);
+            }
         }
 
         async function loadMenu() {
@@ -463,7 +479,7 @@
             });
 
             document.getElementById('food-total').innerText = foodTotal.toLocaleString();
-            const grandTotal = foodTotal + (foodTotal > 0 ? currentDeliveryFee : 0);
+            const grandTotal = foodTotal + (foodTotal > 0 && isWithinDeliveryZone ? currentDeliveryFee : 0);
             document.getElementById('cart-total').innerText = grandTotal.toLocaleString() + " so'm";
             return foodTotal;
         }
@@ -474,6 +490,21 @@
 
             map = L.map('map').setView([cafeLat, cafeLng], 14);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+            // 1-Zona yashil doirasi va 2-Zona qizil doirasini xaritaga qo'shish[cite: 6]
+            circle1 = L.circle([cafeLat, cafeLng], {
+                color: '#10b981',
+                fillColor: '#10b981',
+                fillOpacity: 0.1,
+                radius: zone1Km * 1000
+            }).addTo(map);
+
+            circle2 = L.circle([cafeLat, cafeLng], {
+                color: '#ef4444',
+                fillColor: '#ef4444',
+                fillOpacity: 0.05,
+                radius: zone2Km * 1000
+            }).addTo(map);
 
             const cafeIcon = L.icon({
                 iconUrl: "https://wrrsvrgdinfmnuwewtoa.supabase.co/storage/v1/object/public/menu-images/Untitled%20folder/content.png",
@@ -504,7 +535,6 @@
                 updateCoords(coord.lat, coord.lng);
             });
 
-            // Realtime tinglovchi: Admin panelda o'zgarish bo'lsa, mijoz ilovasi avtomatik yangilaydi
             const client = getClient();
             if (client) {
                 client.channel('public:menu')
@@ -524,6 +554,10 @@
         async function sendDeliveryOrder() {
             const client = getClient();
             if (!client) return alert("Ulanish xatosi!");
+
+            if (!isWithinDeliveryZone) {
+                return alert("❌ Kechirasiz, tanlangan manzil yetkazib berish zonasidan tashqarida. Bu yerda dastavka xizmati mavjud emas!");
+            }
 
             const name = document.getElementById('cust-name').value.trim();
             const phone = document.getElementById('cust-phone').value.trim();
