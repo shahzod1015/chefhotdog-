@@ -594,7 +594,6 @@
             if (!name || !phone) return alert("Ismingiz va telefon raqamingizni kiriting!");
 
             let receiptFileUrl = "";
-            let isPdf = false;
             if (payMethod === 'card') {
                 const fileInput = document.getElementById('receipt-file');
                 if (!fileInput.files || fileInput.files.length === 0) {
@@ -602,7 +601,6 @@
                 }
 
                 const file = fileInput.files[0];
-                isPdf = file.name.toLowerCase().endsWith('.pdf');
                 const fileExt = file.name.split('.').pop();
                 const fileName = `receipt_${Date.now()}.${fileExt}`;
                 const filePath = `receipts/${fileName}`;
@@ -647,15 +645,13 @@
             let statusText = '';
 
             if (payMethod === 'card') {
-                // Admin paneldagi holat qismiga rasmni bevosita chiqaramiz
-                let receiptViewHtml = isPdf 
-                    ? `<a href="${receiptFileUrl}" target="_blank" style="color: #38bdf8; font-weight: bold;">📄 PDF Chekni ochish</a>` 
-                    : `<br><a href="${receiptFileUrl}" target="_blank"><img src="${receiptFileUrl}" style="max-width: 120px; max-height: 120px; border-radius: 8px; border: 2px solid #10b981; margin-top: 4px;" alt="Chek rasmi"></a>`;
+                // Yashil tugmaga tegmaydigan, matn ichida ochiladigan qisqa ko'k chek havolasi
+                let receiptLinkHtml = `<a href="${receiptFileUrl}" target="_blank" style="color: #38bdf8; font-weight: bold; text-decoration: underline;">📄 Chekni ko'rish / ochish</a>`;
 
-                statusText = `🛵 YETKAZISH: ${name} (${phone}) | Holat: <span style="color: #10b981; font-weight: bold;">TO'LANGAN</span> | Chek: ${receiptViewHtml} | Manzil: ${address} | GPS: ${selectedLat.toFixed(5)}, ${selectedLng.toFixed(5)} | Dostavka: ${currentDeliveryFee.toLocaleString()} so'm | Taomlar: ${orderItemsStr.join(', ')}`;
-                paymentStatusTg = `🟢 <b style="color: #10b981;">TO'LANGAN</b> (Karta/QR orqali)\n📎 Chek fayli: <a href="${receiptFileUrl}" target="_blank">Chekni ochish / yuklab olish</a>`;
+                statusText = `🛵 YETKAZISH: ${name} (${phone}) | Holat: TO'LANGAN | Chek: ${receiptLinkHtml} | Manzil: ${address} | GPS: ${selectedLat.toFixed(5)}, ${selectedLng.toFixed(5)} | Dostavka: ${currentDeliveryFee.toLocaleString()} so'm | Taomlar: ${orderItemsStr.join(', ')}`;
+                paymentStatusTg = `🟢 <b>TO'LANGAN</b> (Karta/QR orqali)\n📎 Chek fayli: <a href="${receiptFileUrl}" target="_blank">Chekni ochish / yuklab olish</a>`;
             } else {
-                statusText = `🛵 YETKAZISH: ${name} (${phone}) | Holat: <span style="color: #ef4444; font-weight: bold;">To'lov naqd pul asosida</span> | Manzil: ${address} | GPS: ${selectedLat.toFixed(5)}, ${selectedLng.toFixed(5)} | Dostavka: ${currentDeliveryFee.toLocaleString()} so'm | Taomlar: ${orderItemsStr.join(', ')}`;
+                statusText = `🛵 YETKAZISH: ${name} (${phone}) | Holat: To'lov naqd pul asosida | Manzil: ${address} | GPS: ${selectedLat.toFixed(5)}, ${selectedLng.toFixed(5)} | Dostavka: ${currentDeliveryFee.toLocaleString()} so'm | Taomlar: ${orderItemsStr.join(', ')}`;
                 paymentStatusTg = '🔴 <b>To\'lov naqd pul asosida</b>';
             }
 
@@ -694,7 +690,7 @@
                 });
 
                 if (payMethod === 'card' && receiptFileUrl) {
-                    if (isPdf) {
+                    if (receiptFileUrl.toLowerCase().endsWith('.pdf')) {
                         await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendDocument`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
@@ -705,7 +701,7 @@
                             })
                         });
                     } else {
-                        await fetch(`https://api.telegram.org/bot${TELEGRAM_BODY_TOKEN || TELEGRAM_BOT_TOKEN}/sendPhoto`, {
+                        await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({
