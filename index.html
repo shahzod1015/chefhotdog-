@@ -390,21 +390,21 @@
                 })
             }).addTo(map);
 
-            // Kafe logotipi uchun maxsus xarita belgisi
+            // Kafe logotipi uchun maxsus icon
             const cafeIcon = L.icon({
                 iconUrl: CAFE_LOGO_URL,
-                iconSize: [38, 38],
-                iconAnchor: [19, 19],
-                popupAnchor: [0, -20],
+                iconSize: [40, 40],
+                iconAnchor: [20, 20],
+                popupAnchor: [0, -22],
                 className: 'cafe-marker-icon'
             });
 
-            // Kafe markazi va logotipli popup
+            // Kafe markazi va popup ichidagi logotip (Burger emojisi olib tashlandi)
             cafeMarker = L.marker([cafeLat, cafeLng], { icon: cafeIcon }).addTo(map)
                 .bindPopup(`
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <img src="${CAFE_LOGO_URL}" style="width: 24px; height: 24px; border-radius: 50%; border: 1px solid #d4af37;">
-                        <b style="color: #000;">CHEF Hotdog Kafe</b>
+                    <div style="display: flex; align-items: center; gap: 8px; font-size: 13px;">
+                        <img src="${CAFE_LOGO_URL}" style="width: 26px; height: 26px; border-radius: 50%; border: 1px solid #d4af37; object-fit: cover;">
+                        <b style="color: #111;">CHEF Hotdog Kafe</b>
                     </div>
                 `);
 
