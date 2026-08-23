@@ -650,8 +650,8 @@
                 statusText = `🛵 YETKAZISH: ${name} (${phone}) | Holat: TO'LANGAN | Chek: ${receiptLinkHtml} | Manzil: ${address} | GPS: ${selectedLat.toFixed(5)}, ${selectedLng.toFixed(5)} | Dostavka: ${currentDeliveryFee.toLocaleString()} so'm | Taomlar: ${orderItemsStr.join(', ')}`;
                 paymentStatusTg = `🟢 <b>TO'LANGAN</b> (Karta/QR orqali)\n📎 Chek fayli: <a href="${receiptFileUrl}" target="_blank">Chekni ochish / yuklab olish</a>`;
             } else {
-                // Naqd pul uchun admin ilovasida darhol ko'zga tashlanadigan va qizil rangda chiqadigan qilib o'zgartirildi
-                statusText = `🛵 YETKAZISH: ${name} (${phone}) | Holat: 🔴🔴 TULOV NAQD PUL ASOSIDA 🔴🔴 | Manzil: ${address} | GPS: ${selectedLat.toFixed(5)}, ${selectedLng.toFixed(5)} | Dostavka: ${currentDeliveryFee.toLocaleString()} so'm | Taomlar: ${orderItemsStr.join(', ')}`;
+                // Admin ilovasi xato o'qimasligi uchun status qismiga faqat qisqa va aniq matn yozamiz
+                statusText = `🛵 YETKAZISH: ${name} (${phone}) | Holat: NAQD PUL | Manzil: ${address} | GPS: ${selectedLat.toFixed(5)}, ${selectedLng.toFixed(5)} | Dostavka: ${currentDeliveryFee.toLocaleString()} so'm | Taomlar: ${orderItemsStr.join(', ')}`;
                 paymentStatusTg = '🔴 <b>To\'lov naqd pul asosida</b>';
             }
 
