@@ -650,10 +650,8 @@
                 statusText = `🛵 YETKAZISH: ${name} (${phone}) | Holat: TO'LANGAN | Chek: ${receiptLinkHtml} | Manzil: ${address} | GPS: ${selectedLat.toFixed(5)}, ${selectedLng.toFixed(5)} | Dostavka: ${currentDeliveryFee.toLocaleString()} so'm | Taomlar: ${orderItemsStr.join(', ')}`;
                 paymentStatusTg = `🟢 <b>TO'LANGAN</b> (Karta/QR orqali)\n📎 Chek fayli: <a href="${receiptFileUrl}" target="_blank">Chekni ochish / yuklab olish</a>`;
             } else {
-                // TULOV NAQD PUL ASOSIDA matnini qizil va qalin qilib chiqaramiz
-                let cashTextHtml = `<span style="color: #ef4444; font-weight: bold;">TULOV NAQD PUL ASOSIDA</span>`;
-
-                statusText = `🛵 YETKAZISH: ${name} (${phone}) | Holat: ${cashTextHtml} | Manzil: ${address} | GPS: ${selectedLat.toFixed(5)}, ${selectedLng.toFixed(5)} | Dostavka: ${currentDeliveryFee.toLocaleString()} so'm | Taomlar: ${orderItemsStr.join(', ')}`;
+                // Naqd pul uchun admin ilovasida darhol ko'zga tashlanadigan va qizil rangda chiqadigan qilib o'zgartirildi
+                statusText = `🛵 YETKAZISH: ${name} (${phone}) | Holat: 🔴🔴 TULOV NAQD PUL ASOSIDA 🔴🔴 | Manzil: ${address} | GPS: ${selectedLat.toFixed(5)}, ${selectedLng.toFixed(5)} | Dostavka: ${currentDeliveryFee.toLocaleString()} so'm | Taomlar: ${orderItemsStr.join(', ')}`;
                 paymentStatusTg = '🔴 <b>To\'lov naqd pul asosida</b>';
             }
 
