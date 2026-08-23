@@ -5,14 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>CHEF Hotdog - Yetkazib berish</title>
 
-    <!-- App Icon -->
     <link rel="apple-touch-icon" sizes="180x180" href="https://wrrsvrgdinfmnuwewtoa.supabase.co/storage/v1/object/public/menu-images/Untitled%20folder/content.png">
     <link rel="icon" type="image/png" href="https://wrrsvrgdinfmnuwewtoa.supabase.co/storage/v1/object/public/menu-images/Untitled%20folder/content.png">
     
-    <!-- Supabase JS CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
     
-    <!-- OpenStreetMap Leaflet Xarita JS va CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
@@ -96,15 +93,10 @@
             text-decoration: none;
             font-size: 11px;
             font-weight: 600;
-            transition: 0.2s ease;
             width: fit-content;
         }
 
-        .contact-btn svg {
-            width: 15px;
-            height: 15px;
-            flex-shrink: 0;
-        }
+        .contact-btn svg { width: 15px; height: 15px; flex-shrink: 0; }
 
         .brand-right {
             display: flex;
@@ -129,8 +121,6 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            line-height: 1.1;
         }
 
         .header-subtext {
@@ -151,7 +141,6 @@
             font-size: 13px !important;
             color: var(--blue-accent) !important;
             font-weight: 700 !important;
-            box-shadow: 0 0 12px rgba(59, 130, 246, 0.25) !important;
         }
 
         .pos-grid { 
@@ -171,6 +160,7 @@
             flex-direction: column; 
             justify-content: space-between; 
             position: relative;
+            overflow: hidden;
         }
 
         .pos-card img { 
@@ -224,8 +214,6 @@
             border-radius: 8px;
             padding: 3px 8px;
             text-align: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
-            white-space: nowrap;
         }
 
         .zone-label-2 {
@@ -237,8 +225,6 @@
             border-radius: 8px;
             padding: 3px 8px;
             text-align: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
-            white-space: nowrap;
         }
 
         .cart-bar {
@@ -269,33 +255,32 @@
             text-transform: uppercase;
         }
 
-        .is-stopped { opacity: 0.4; pointer-events: none; }
-        .is-stopped::after {
-            content: "🛑 STOP LIST"; position: absolute; top: 35%; left: 5%; right: 5%;
-            background: rgba(239, 68, 68, 0.95); color: #fff; font-size: 13px; font-weight: 900; padding: 6px; border-radius: 8px;
+        /* STOP LIST DIZAYNI (Aniq ko'rinadigan qilib yangilandi) */
+        .is-stopped { 
+            opacity: 0.6; 
+            pointer-events: none; 
+            filter: grayscale(40%);
         }
-
-        .zone-badge-box {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 10px;
-        }
-
-        .zone-badge {
-            flex: 1;
-            padding: 8px;
+        .stop-badge {
+            position: absolute; 
+            top: 35%; 
+            left: 10px; 
+            right: 10px;
+            background: rgba(239, 68, 68, 0.95); 
+            color: #fff; 
+            font-size: 12px; 
+            font-weight: 900; 
+            padding: 8px; 
             border-radius: 8px;
             text-align: center;
-            font-size: 11px;
-            font-weight: bold;
+            border: 1px solid #fff;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            z-index: 10;
         }
 
-        .cafe-marker-icon {
-            border-radius: 50%;
-            border: 2px solid #d4af37;
-            box-shadow: 0 0 10px rgba(212, 175, 55, 0.6);
-            object-fit: cover;
-        }
+        .zone-badge-box { display: flex; gap: 8px; margin-bottom: 10px; }
+        .zone-badge { flex: 1; padding: 8px; border-radius: 8px; text-align: center; font-size: 11px; font-weight: bold; }
+        .cafe-marker-icon { border-radius: 50%; border: 2px solid #d4af37; object-fit: cover; }
     </style>
 </head>
 <body>
@@ -304,29 +289,16 @@
         <div class="header-card">
             <div class="header-row">
                 <div class="contacts-left">
-                    <a href="tel:+998776301521" class="contact-btn">
-                        <svg viewBox="0 0 24 24" fill="#d4af37"><path d="M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
-                        +998 77 630 15 21
-                    </a>
-                    <a href="https://t.me/chef_hotdog" target="_blank" class="contact-btn">
-                        <svg viewBox="0 0 24 24" fill="#0088cc"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.2-.08-.06-.19-.04-.27-.02-.12.02-1.96 1.25-5.54 3.67-.52.36-.99.53-1.42.52-.47-.01-1.37-.26-2.03-.48-.82-.27-1.47-.42-1.42-.88.03-.24.38-.49 1.05-.75 4.12-1.79 6.87-2.97 8.25-3.55 3.93-1.63 4.75-1.92 5.28-1.93.12 0 .37.03.54.17.14.12.18.28.2.45-.02.07-.02.16-.04.28z"/></svg>
-                        Telegram
-                    </a>
-                    <a href="https://instagram.com/chef__hotdog" target="_blank" class="contact-btn">
-                        <svg viewBox="0 0 24 24" fill="#e1306c"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
-                        @chef__hotdog
-                    </a>
+                    <a href="tel:+998776301521" class="contact-btn">📞 +998 77 630 15 21</a>
+                    <a href="https://t.me/chef_hotdog" target="_blank" class="contact-btn">💬 Telegram</a>
+                    <a href="https://instagram.com/chef__hotdog" target="_blank" class="contact-btn">📸 Instagram</a>
                 </div>
-
                 <div class="brand-right">
                     <img src="https://wrrsvrgdinfmnuwewtoa.supabase.co/storage/v1/object/public/menu-images/Untitled%20folder/content.png" alt="CHEF Hotdog" class="logo-img">
                     <h1>CHEF HOTDOG</h1>
                 </div>
             </div>
-
-            <div class="header-subtext">
-                🚀 Onlayn buyurtma va tezkor yetkazib berish
-            </div>
+            <div class="header-subtext">🚀 Onlayn buyurtma va tezkor yetkazib berish</div>
         </div>
 
         <div class="min-order-info" id="min-order-banner">
@@ -339,15 +311,14 @@
 
     <div class="order-form">
         <h3>📍 Yetkazib berish manzili:</h3>
-        
         <input type="text" id="cust-name" placeholder="Ismingiz" required>
         <input type="tel" id="cust-phone" placeholder="Telefon raqamingiz (+998 ...)" required>
         
         <div class="zone-badge-box">
-            <div class="zone-badge" style="background:rgba(16, 185, 129, 0.15); border:1px solid #10b981; color:#10b981;" id="z1-badge-box">
+            <div class="zone-badge" style="background:rgba(16, 185, 129, 0.15); border:1px solid #10b981; color:#10b981;">
                 🟢 1-Zona: <span id="z1-badge-info">...</span>
             </div>
-            <div class="zone-badge" style="background:rgba(239, 68, 68, 0.15); border:1px solid #ef4444; color:#ef4444;" id="z2-badge-box">
+            <div class="zone-badge" style="background:rgba(239, 68, 68, 0.15); border:1px solid #ef4444; color:#ef4444;">
                 🔴 2-Zona: <span id="z2-badge-info">...</span>
             </div>
         </div>
@@ -371,15 +342,11 @@
         const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndycnN2cmdkaW5mbW51d2V3dG9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY5NzM0ODIsImV4cCI6MjEwMjU0OTQ4Mn0.YRHratsKVG42IY6YKokDycRy23oU8N3b7jO-o3tpQF4";
         
         let db;
-        let defaultMinOrder = 48000;
-        const CAFE_LOGO_URL = "https://wrrsvrgdinfmnuwewtoa.supabase.co/storage/v1/object/public/menu-images/Untitled%20folder/content.png";
-
         let cart = {};
         let menuItems = [];
         let map, userMarker, cafeMarker, circle1, circle2;
 
         let cafeLat = 38.849449, cafeLng = 65.793410; 
-        
         let zone1Km = 0.7, zone1Price = 5000, zone1Min = 48000;
         let zone2Km = 2.0, zone2Price = 10000, zone2Min = 70000;
 
@@ -388,12 +355,8 @@
         let currentDynamicMinOrder = 48000;
 
         function getClient() {
-            if (!db) {
-                if (window.supabase && window.supabase.createClient) {
-                    db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-                } else {
-                    console.error("Supabase kutubxonasi yuklanmadi!");
-                }
+            if (!db && window.supabase) {
+                db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
             }
             return db;
         }
@@ -402,11 +365,8 @@
             const R = 6371;
             const dLat = (lat2 - lat1) * Math.PI / 180;
             const dLon = (lon2 - lon1) * Math.PI / 180;
-            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                      Math.sin(dLon / 2) * Math.sin(dLon / 2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-            return R * c;
+            const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) ** 2;
+            return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
         }
 
         function updateDeliveryFee(lat, lng) {
@@ -414,12 +374,9 @@
             if (dist <= zone1Km) {
                 currentDeliveryFee = zone1Price;
                 currentDynamicMinOrder = zone1Min;
-            } else if (dist <= zone2Km) {
-                currentDeliveryFee = zone2Price;
-                currentDynamicMinOrder = zone2Min;
             } else {
                 currentDeliveryFee = zone2Price;
-                currentDynamicMinOrder = zone2Min; // Standart uzoq zona
+                currentDynamicMinOrder = zone2Min;
             }
             
             document.getElementById('delivery-cost').innerText = currentDeliveryFee.toLocaleString();
@@ -427,133 +384,38 @@
             calculateTotal();
         }
 
-        async function initMapAndSettings() {
+        async function loadSettings() {
             const client = getClient();
-            if (client) {
-                try {
-                    const { data: set } = await client.from('delivery_settings').select('*').maybeSingle();
-                    if (set) {
-                        cafeLat = set.cafe_lat || cafeLat;
-                        cafeLng = set.cafe_lng || cafeLng;
-                        zone1Km = set.zone1_km || zone1Km;
-                        zone1Price = set.zone1_price || zone1Price;
-                        zone1Min = set.zone1_min_order || zone1Min;
+            if (!client) return;
+            try {
+                const { data: set } = await client.from('delivery_settings').select('*').maybeSingle();
+                if (set) {
+                    cafeLat = set.cafe_lat || cafeLat;
+                    cafeLng = set.cafe_lng || cafeLng;
+                    zone1Km = set.zone1_km || zone1Km;
+                    zone1Price = set.zone1_price || zone1Price;
+                    zone1Min = set.zone1_min_order !== undefined ? set.zone1_min_order : zone1Min;
 
-                        zone2Km = set.zone2_km || zone2Km;
-                        zone2Price = set.zone2_price || zone2Price;
-                        zone2Min = set.zone2_min_order || zone2Min;
-                    }
-                } catch(e) { console.log(e); }
-            }
+                    zone2Km = set.zone2_km || zone2Km;
+                    zone2Price = set.zone2_price || zone2Price;
+                    zone2Min = set.zone2_min_order !== undefined ? set.zone2_min_order : zone2Min;
+                }
+            } catch(e) { console.log(e); }
 
             document.getElementById('z1-badge-info').innerText = `${zone1Km}km (${zone1Price.toLocaleString()} so'm)`;
             document.getElementById('z2-badge-info').innerText = `${zone2Km}km (${zone2Price.toLocaleString()} so'm)`;
             document.getElementById('min-order-val').innerText = zone1Min.toLocaleString();
-
-            selectedLat = cafeLat;
-            selectedLng = cafeLng;
-
-            map = L.map('map').setView([cafeLat, cafeLng], 14);
-
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap'
-            }).addTo(map);
-
-            circle1 = L.circle([cafeLat, cafeLng], {
-                color: '#10b981',
-                fillColor: '#10b981',
-                fillOpacity: 0.15,
-                radius: zone1Km * 1000
-            }).addTo(map);
-
-            const zone1TopLat = cafeLat + (zone1Km / 111.32);
-            L.marker([zone1TopLat, cafeLng], {
-                icon: L.divIcon({
-                    className: '',
-                    html: `<div class="zone-label-1">🟢 1-Zona: ${zone1Price.toLocaleString()} so'm</div>`,
-                    iconSize: [130, 24],
-                    iconAnchor: [65, 12]
-                })
-            }).addTo(map);
-
-            circle2 = L.circle([cafeLat, cafeLng], {
-                color: '#ef4444',
-                fillColor: '#ef4444',
-                fillOpacity: 0.08,
-                radius: zone2Km * 1000
-            }).addTo(map);
-
-            const zone2TopLat = cafeLat + (zone2Km / 111.32);
-            L.marker([zone2TopLat, cafeLng], {
-                icon: L.divIcon({
-                    className: '',
-                    html: `<div class="zone-label-2">🔴 2-Zona: ${zone2Price.toLocaleString()} so'm</div>`,
-                    iconSize: [130, 24],
-                    iconAnchor: [65, 12]
-                })
-            }).addTo(map);
-
-            const cafeIcon = L.icon({
-                iconUrl: CAFE_LOGO_URL,
-                iconSize: [40, 40],
-                iconAnchor: [20, 20],
-                popupAnchor: [0, -20],
-                className: 'cafe-marker-icon'
-            });
-
-            cafeMarker = L.marker([cafeLat, cafeLng], { icon: cafeIcon }).addTo(map);
-            
-            const popupHTML = `
-                <div style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: bold; color: #111;">
-                    <img src="${CAFE_LOGO_URL}" style="width: 26px; height: 26px; border-radius: 50%; object-fit: cover; border: 1px solid #d4af37;">
-                    <span>CHEF Hotdog Kafe</span>
-                </div>
-            `;
-            cafeMarker.bindPopup(popupHTML);
-
-            userMarker = L.marker([cafeLat, cafeLng], { draggable: true }).addTo(map);
-
-            function updateCoords(lat, lng) {
-                selectedLat = lat;
-                selectedLng = lng;
-                document.getElementById('cust-address').value = `GPS: ${lat.toFixed(5)}, ${lng.toFixed(5)}`;
-                updateDeliveryFee(lat, lng);
-            }
-
-            updateCoords(cafeLat, cafeLng);
-
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(pos => {
-                    const { latitude, longitude } = pos.coords;
-                    map.setView([latitude, longitude], 15);
-                    userMarker.setLatLng([latitude, longitude]);
-                    updateCoords(latitude, longitude);
-                }, () => {});
-            }
-
-            map.on('click', function(e) {
-                userMarker.setLatLng(e.latlng);
-                updateCoords(e.latlng.lat, e.latlng.lng);
-            });
-
-            userMarker.on('dragend', function(e) {
-                const coord = userMarker.getLatLng();
-                updateCoords(coord.lat, coord.lng);
-            });
+            currentDynamicMinOrder = zone1Min;
         }
 
         async function loadMenu() {
             const client = getClient();
-            if (!client) {
-                document.getElementById('delivery-menu').innerHTML = `<p style="color:#ef4444;">Kutubxona yuklanmadi</p>`;
-                return;
-            }
+            if (!client) return;
 
             const { data, error } = await client.from('menu').select('*').order('id', { ascending: true });
-            if(error) {
-                console.error("Supabase xatosi:", error);
-                document.getElementById('delivery-menu').innerHTML = `<p style="color:#ef4444; font-size:12px;">Xatolik: ${error.message}</p>`;
-                return alert("Menyu yuklanmadi: " + error.message);
+            if (error) {
+                console.error("Menyu xatosi:", error);
+                return;
             }
 
             menuItems = data || [];
@@ -561,10 +423,11 @@
 
             menuItems.forEach(item => {
                 if (cart[item.id] === undefined) cart[item.id] = 0;
-                const isStopped = item.is_stopped;
+                const isStopped = item.is_stopped === true || item.is_stopped === 'true';
 
                 html += `
                 <div class="pos-card ${isStopped ? 'is-stopped' : ''}">
+                    ${isStopped ? '<div class="stop-badge">🛑 STOP LIST</div>' : ''}
                     <div>
                         <img src="${item.image_url || 'https://via.placeholder.com/150'}" alt="${item.title}">
                         <h4>${item.title}</h4>
@@ -596,16 +459,66 @@
         function calculateTotal() {
             let foodTotal = 0;
             menuItems.forEach(item => {
-                if (cart[item.id]) {
-                    foodTotal += cart[item.id] * item.price;
-                }
+                if (cart[item.id]) foodTotal += cart[item.id] * item.price;
             });
 
             document.getElementById('food-total').innerText = foodTotal.toLocaleString();
-            
             const grandTotal = foodTotal + (foodTotal > 0 ? currentDeliveryFee : 0);
             document.getElementById('cart-total').innerText = grandTotal.toLocaleString() + " so'm";
             return foodTotal;
+        }
+
+        async function initApp() {
+            await loadSettings();
+            await loadMenu();
+
+            map = L.map('map').setView([cafeLat, cafeLng], 14);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+            const cafeIcon = L.icon({
+                iconUrl: "https://wrrsvrgdinfmnuwewtoa.supabase.co/storage/v1/object/public/menu-images/Untitled%20folder/content.png",
+                iconSize: [40, 40],
+                iconAnchor: [20, 20],
+                className: 'cafe-marker-icon'
+            });
+
+            cafeMarker = L.marker([cafeLat, cafeLng], { icon: cafeIcon }).addTo(map);
+            userMarker = L.marker([cafeLat, cafeLng], { draggable: true }).addTo(map);
+
+            function updateCoords(lat, lng) {
+                selectedLat = lat;
+                selectedLng = lng;
+                document.getElementById('cust-address').value = `GPS: ${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+                updateDeliveryFee(lat, lng);
+            }
+
+            updateCoords(cafeLat, cafeLng);
+
+            map.on('click', e => {
+                userMarker.setLatLng(e.latlng);
+                updateCoords(e.latlng.lat, e.latlng.lng);
+            });
+
+            userMarker.on('dragend', () => {
+                const coord = userMarker.getLatLng();
+                updateCoords(coord.lat, coord.lng);
+            });
+
+            // Realtime tinglovchi: Admin panelda o'zgarish bo'lsa, mijoz ilovasi avtomatik yangilaydi
+            const client = getClient();
+            if (client) {
+                client.channel('public:menu')
+                    .on('postgres_changes', { event: '*', schema: 'public', table: 'menu' }, () => {
+                        loadMenu();
+                    })
+                    .subscribe();
+
+                client.channel('public:delivery_settings')
+                    .on('postgres_changes', { event: '*', schema: 'public', table: 'delivery_settings' }, () => {
+                        loadSettings();
+                    })
+                    .subscribe();
+            }
         }
 
         async function sendDeliveryOrder() {
@@ -616,9 +529,7 @@
             const phone = document.getElementById('cust-phone').value.trim();
             const address = document.getElementById('cust-address').value;
 
-            if (!name || !phone) {
-                return alert("Iltimos, ismingiz va telefon raqamingizni kiriting!");
-            }
+            if (!name || !phone) return alert("Ismingiz va telefon raqamingizni kiriting!");
 
             let orderItemsStr = [];
             let totalFoodAmount = 0;
@@ -633,17 +544,14 @@
                 }
             });
 
-            if (orderItemsStr.length === 0) {
-                return alert("Kamida bitta taom tanlang!");
-            }
+            if (orderItemsStr.length === 0) return alert("Kamida bitta taom tanlang!");
 
             if (totalFoodAmount < currentDynamicMinOrder) {
-                const needed = currentDynamicMinOrder - totalFoodAmount;
-                return alert(`⚠️ Tanlangan hudud uchun eng kam buyurtma summasi ${currentDynamicMinOrder.toLocaleString()} so'm!\n\nTaomlar summasi: ${totalFoodAmount.toLocaleString()} so'm.\nYana ${needed.toLocaleString()} so'mlik taom qo'shing.`);
+                return alert(`⚠️ Tanlangan hudud uchun eng kam buyurtma summasi ${currentDynamicMinOrder.toLocaleString()} so'm!`);
             }
 
             const grandTotal = totalFoodAmount + currentDeliveryFee;
-            const statusText = `🛵 YETKAZISH: ${name} (${phone}) | Manzil: ${address} | GPS: ${selectedLat.toFixed(6)}, ${selectedLng.toFixed(6)} | Dostavka: ${currentDeliveryFee.toLocaleString()} so'm | Taomlar: ${orderItemsStr.join(', ')}`;
+            const statusText = `🛵 YETKAZISH: ${name} (${phone}) | Manzil: ${address} | GPS: ${selectedLat.toFixed(5)}, ${selectedLng.toFixed(5)} | Dostavka: ${currentDeliveryFee.toLocaleString()} so'm | Taomlar: ${orderItemsStr.join(', ')}`;
 
             const { error } = await client.from('sales').insert([{
                 total_amount: grandTotal,
@@ -653,17 +561,14 @@
             }]);
 
             if (error) {
-                alert("Buyurtma yuborishda xatolik: " + error.message);
+                alert("Xatolik: " + error.message);
             } else {
-                alert("✅ Buyurtmangiz qabul qilindi! Tez orada aloqaga chiqamiz.");
+                alert("✅ Buyurtmangiz qabul qilindi!");
                 location.reload();
             }
         }
 
-        window.addEventListener('DOMContentLoaded', () => {
-            initMapAndSettings();
-            loadMenu();
-        });
+        window.addEventListener('DOMContentLoaded', initApp);
     </script>
 </body>
 </html>
