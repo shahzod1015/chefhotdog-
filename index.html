@@ -278,7 +278,6 @@
             margin-top: 12px;
         }
 
-        /* Radio button style options */
         .payment-options {
             display: flex;
             flex-direction: column;
@@ -356,7 +355,6 @@
         <div id="map"></div>
         <input type="text" id="cust-address" placeholder="Tanlangan joylashuv koordinatasi" readonly>
 
-        <!-- TO'LOV TURI (Ikkala variant ham doim ko'rinib turadi) -->
         <div class="payment-box">
             <label style="font-size:13px; font-weight:bold; color:var(--gold-text); display:block; margin-bottom:6px;">💳 To'lov turini tanlang:</label>
             
@@ -378,7 +376,6 @@
                 <div id="display-qr-container" style="margin-top:6px;"></div>
             </div>
 
-            <!-- CHEK YUKLASH INPUTI -->
             <div id="receipt-upload-box" style="display:none; margin-top:8px;">
                 <label style="font-size:12px; color:#10b981; font-weight:bold; display:block; margin-bottom:4px;">📎 To'lov chekini yuklang (Rasm yoki PDF):</label>
                 <input type="file" id="receipt-file" accept="image/*,application/pdf" style="padding: 8px; font-size: 12px; background: #121215;">
@@ -685,9 +682,9 @@
             let paymentStatusTg = '';
             let statusText = '';
 
-            // Admin tugmasi buzilmasligi uchun status matnini qisqa va aniq saqlaymiz
+            // Admin panel uchun to'g'ri va to'liq format: TO'LANGAN yoki NAQD PUL
             if (payMethod === 'card') {
-                statusText = `🛵 YETKAZISH: ${name} (${phone}) | Holat: TO'LANGAN | Manzil: ${address} | Dostavka: ${currentDeliveryFee.toLocaleString()} so'm | Taomlar: ${orderItemsStr.join(', ')}`;
+                statusText = `🛵 YETKAZISH: ${name} (${phone}) | Holat: TO'LANGAN | Chek: 📄 Chekni ko'rsatish / ochish (${receiptFileUrl}) | Manzil: ${address} | Dostavka: ${currentDeliveryFee.toLocaleString()} so'm | Taomlar: ${orderItemsStr.join(', ')}`;
                 paymentStatusTg = `🟢 <b>TO'LANGAN</b> (Karta/QR orqali)\n📎 Chek fayli: <a href="${receiptFileUrl}" target="_blank">Chekni ochish / yuklab olish</a>`;
             } else {
                 statusText = `🛵 YETKAZISH: ${name} (${phone}) | Holat: NAQD PUL | Manzil: ${address} | Dostavka: ${currentDeliveryFee.toLocaleString()} so'm | Taomlar: ${orderItemsStr.join(', ')}`;
