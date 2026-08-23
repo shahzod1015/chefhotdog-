@@ -189,7 +189,7 @@
 
         .order-form h3 { color: var(--gold-text); font-size: 16px; margin-bottom: 12px; }
 
-        input, select {
+        input {
             width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 10px;
             border: var(--gold-border-thin); background: #08080a; color: #fff; font-size: 14px;
         }
@@ -277,6 +277,36 @@
             border-radius: 12px;
             margin-top: 12px;
         }
+
+        /* Radio button style options */
+        .payment-options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 6px;
+        }
+
+        .payment-option-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #08080a;
+            border: var(--gold-border-thin);
+            padding: 10px 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .payment-option-label input[type="radio"] {
+            width: 18px;
+            height: 18px;
+            margin: 0;
+            accent-color: #d4af37;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -326,15 +356,22 @@
         <div id="map"></div>
         <input type="text" id="cust-address" placeholder="Tanlangan joylashuv koordinatasi" readonly>
 
-        <!-- TO'LOV TURI -->
+        <!-- TO'LOV TURI (Ikkala variant ham doim ko'rinib turadi) -->
         <div class="payment-box">
             <label style="font-size:13px; font-weight:bold; color:var(--gold-text); display:block; margin-bottom:6px;">💳 To'lov turini tanlang:</label>
-            <select id="payment-method" onchange="togglePaymentDetails()" style="margin-bottom:8px;">
-                <option value="cash">💵 Naqd pul (Kuryerga)</option>
-                <option value="card">💳 Karta yoki QR kod orqali (Chek talab qilinadi)</option>
-            </select>
+            
+            <div class="payment-options">
+                <label class="payment-option-label">
+                    <input type="radio" name="payment_method" value="cash" checked onchange="togglePaymentDetails()">
+                    💵 Naqd pul (Kuryerga)
+                </label>
+                <label class="payment-option-label">
+                    <input type="radio" name="payment_method" value="card" onchange="togglePaymentDetails()">
+                    💳 Karta yoki QR kod orqali
+                </label>
+            </div>
 
-            <div id="card-payment-info" style="display:none; text-align:center; padding:8px; background:rgba(0,0,0,0.5); border-radius:8px; border:1px solid #d4af37; margin-bottom: 8px;">
+            <div id="card-payment-info" style="display:none; text-align:center; padding:10px; background:rgba(0,0,0,0.5); border-radius:8px; border:1px solid #d4af37; margin-top: 10px; margin-bottom: 8px;">
                 <p style="font-size:11px; color:#ccc; margin-bottom:2px;">Quyidagi karta raqamiga yoki QR kod orqali o'tkazing:</p>
                 <b id="display-card-num" style="font-size:15px; color:#f5d061; letter-spacing:1px;">Yuklanmoqda...</b><br>
                 <small id="display-card-holder" style="color:#aaa;"></small>
@@ -527,7 +564,9 @@
         }
 
         function togglePaymentDetails() {
-            const method = document.getElementById('payment-method').value;
+            const selectedRadio = document.querySelector('input[name="payment_method"]:checked');
+            const method = selectedRadio ? selectedRadio.value : 'cash';
+            
             document.getElementById('card-payment-info').style.display = (method === 'card') ? 'block' : 'none';
             document.getElementById('receipt-upload-box').style.display = (method === 'card') ? 'block' : 'none';
         }
@@ -589,7 +628,9 @@
             const name = document.getElementById('cust-name').value.trim();
             const phone = document.getElementById('cust-phone').value.trim();
             const address = document.getElementById('cust-address').value;
-            const payMethod = document.getElementById('payment-method').value;
+            
+            const selectedRadio = document.querySelector('input[name="payment_method"]:checked');
+            const payMethod = selectedRadio ? selectedRadio.value : 'cash';
 
             if (!name || !phone) return alert("Ismingiz va telefon raqamingizni kiriting!");
 
@@ -644,14 +685,12 @@
             let paymentStatusTg = '';
             let statusText = '';
 
+            // Admin tugmasi buzilmasligi uchun status matnini qisqa va aniq saqlaymiz
             if (payMethod === 'card') {
-                let receiptLinkHtml = `<a href="${receiptFileUrl}" target="_blank" style="color: #38bdf8; font-weight: bold; text-decoration: underline;">📄 Chekni ko'rish / ochish</a>`;
-
-                statusText = `🛵 YETKAZISH: ${name} (${phone}) | Holat: TO'LANGAN | Chek: ${receiptLinkHtml} | Manzil: ${address} | GPS: ${selectedLat.toFixed(5)}, ${selectedLng.toFixed(5)} | Dostavka: ${currentDeliveryFee.toLocaleString()} so'm | Taomlar: ${orderItemsStr.join(', ')}`;
+                statusText = `🛵 YETKAZISH: ${name} (${phone}) | Holat: TO'LANGAN | Manzil: ${address} | Dostavka: ${currentDeliveryFee.toLocaleString()} so'm | Taomlar: ${orderItemsStr.join(', ')}`;
                 paymentStatusTg = `🟢 <b>TO'LANGAN</b> (Karta/QR orqali)\n📎 Chek fayli: <a href="${receiptFileUrl}" target="_blank">Chekni ochish / yuklab olish</a>`;
             } else {
-                // Admin ilovasi xato o'qimasligi uchun status qismiga faqat qisqa va aniq matn yozamiz
-                statusText = `🛵 YETKAZISH: ${name} (${phone}) | Holat: NAQD PUL | Manzil: ${address} | GPS: ${selectedLat.toFixed(5)}, ${selectedLng.toFixed(5)} | Dostavka: ${currentDeliveryFee.toLocaleString()} so'm | Taomlar: ${orderItemsStr.join(', ')}`;
+                statusText = `🛵 YETKAZISH: ${name} (${phone}) | Holat: NAQD PUL | Manzil: ${address} | Dostavka: ${currentDeliveryFee.toLocaleString()} so'm | Taomlar: ${orderItemsStr.join(', ')}`;
                 paymentStatusTg = '🔴 <b>To\'lov naqd pul asosida</b>';
             }
 
@@ -670,14 +709,18 @@
 
             // 2. Telegram Botga xabar yuborish
             try {
-                const tgText = `🚀 <b>Yangi Dostavka Buyurtmasi!</b>\n\n` +
-                               `👤 Mijoz: <b>${name}</b>\n` +
-                               `📞 Tel: <b>${phone}</b>\n` +
-                               `💳 To'lov holati: ${paymentStatusTg}\n` +
-                               `📍 Manzil: ${address}\n` +
-                               `🍲 Taomlar: ${orderItemsStr.join(', ')}\n` +
-                               `🚚 Dostavka narxi: ${currentDeliveryFee.toLocaleString()} so'm\n` +
-                               `💰 Jami summa: <b>${grandTotal.toLocaleString()} so'm</b>`;
+                let tgText = `🚀 <b>Yangi Dostavka Buyurtmasi!</b>\n\n` +
+                             `👤 Mijoz: <b>${name}</b>\n` +
+                             `📞 Tel: <b>${phone}</b>\n` +
+                             `💳 To'lov holati: ${paymentStatusTg}\n` +
+                             `📍 Manzil: ${address}\n` +
+                             `🍲 Taomlar: ${orderItemsStr.join(', ')}\n` +
+                             `🚚 Dostavka narxi: ${currentDeliveryFee.toLocaleString()} so'm\n` +
+                             `💰 Jami summa: <b>${grandTotal.toLocaleString()} so'm</b>`;
+
+                if (payMethod === 'card' && receiptFileUrl) {
+                    tgText += `\n\n📄 <a href="${receiptFileUrl}" target="_blank">TO'LOV CHEKINI OCHISH</a>`;
+                }
 
                 await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
                     method: 'POST',
