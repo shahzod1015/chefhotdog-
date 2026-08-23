@@ -205,7 +205,6 @@
             z-index: 1;
         }
 
-        /* Ogohlantirish bloki (Radiusdan tashqariga chiqilganda chiqadi) */
         #out-of-zone-warning {
             display: none;
             background: rgba(239, 68, 68, 0.2);
@@ -303,7 +302,6 @@
     <div class="order-form">
         <h3>📍 Yetkazib berish manzili:</h3>
         
-        <!-- Xabarnoma qismi -->
         <div id="out-of-zone-warning">❌ Bu yerda dastavka xizmati mavjud emas!</div>
 
         <input type="text" id="cust-name" placeholder="Ismingiz" required>
@@ -369,7 +367,6 @@
             const dist = calculateDistance(cafeLat, cafeLng, lat, lng);
             const warningEl = document.getElementById('out-of-zone-warning');
 
-            // 2-zonadan (maksimal masofadan) tashqarida ekanligini tekshirish
             if (dist > zone2Km) {
                 isWithinDeliveryZone = false;
                 warningEl.style.display = 'block';
@@ -415,12 +412,16 @@
             document.getElementById('min-order-val').innerText = zone1Min.toLocaleString();
             currentDynamicMinOrder = zone1Min;
 
-            // Xaritadagi radius doiralarini yangilash
-            if (circle1 && circle2 && map) {
-                circle1.setLatLng([cafeLat, cafeLng]);
-                circle1.setRadius(zone1Km * 1000);
-                circle2.setLatLng([cafeLat, cafeLng]);
-                circle2.setRadius(zone2Km * 1000);
+            // Xaritadagi doiralarni yangilash (agar allaqachon chizilgan bo'lsa)
+            if (map) {
+                if (circle1) {
+                    circle1.setLatLng([cafeLat, cafeLng]);
+                    circle1.setRadius(zone1Km * 1000);
+                }
+                if (circle2) {
+                    circle2.setLatLng([cafeLat, cafeLng]);
+                    circle2.setRadius(zone2Km * 1000);
+                }
             }
         }
 
@@ -488,21 +489,27 @@
             await loadSettings();
             await loadMenu();
 
+            // Xaritani yaratish
             map = L.map('map').setView([cafeLat, cafeLng], 14);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19
+            }).addTo(map);
 
-            // 1-Zona yashil doirasi va 2-Zona qizil doirasini xaritaga qo'shish[cite: 6]
+            // 1-Zona yashil doirasi (Aniq ko'rinadigan qilib qo'shildi)
             circle1 = L.circle([cafeLat, cafeLng], {
                 color: '#10b981',
+                weight: 2,
                 fillColor: '#10b981',
-                fillOpacity: 0.1,
+                fillOpacity: 0.15,
                 radius: zone1Km * 1000
             }).addTo(map);
 
+            // 2-Zona qizil doirasi (Aniq ko'rinadigan qilib qo'shildi)
             circle2 = L.circle([cafeLat, cafeLng], {
                 color: '#ef4444',
+                weight: 2,
                 fillColor: '#ef4444',
-                fillOpacity: 0.05,
+                fillOpacity: 0.08,
                 radius: zone2Km * 1000
             }).addTo(map);
 
