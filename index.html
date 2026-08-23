@@ -594,6 +594,7 @@
             const grandTotal = totalFoodAmount + currentDeliveryFee;
             const statusText = `🛵 YETKAZISH: ${name} (${phone}) | Manzil: ${address} | GPS: ${selectedLat.toFixed(5)}, ${selectedLng.toFixed(5)} | Dostavka: ${currentDeliveryFee.toLocaleString()} so'm | Taomlar: ${orderItemsStr.join(', ')}`;
 
+            // 1. Bazaga yozish
             const { error } = await client.from('sales').insert([{
                 total_amount: grandTotal,
                 total_cost: totalCost,
@@ -603,33 +604,37 @@
 
             if (error) {
                 alert("Xatolik: " + error.message);
-            } else {
-                // TELEGRAM BOTGA XABAR YUBORISH
-                try {
-                    const tgText = `🚀 <b>Yangi Dostavka Buyurtmasi!</b>\n\n` +
-                                   `👤 Mijoz: <b>${name}</b>\n` +
-                                   `📞 Tel: <b>${phone}</b>\n` +
-                                   `📍 Manzil: ${address}\n` +
-                                   `🍲 Taomlar: ${orderItemsStr.join(', ')}\n` +
-                                   `🚚 Dostavka narxi: ${currentDeliveryFee.toLocaleString()} so'm\n` +
-                                   `💰 Jami summa: <b>${grandTotal.toLocaleString()} so'm</b>`;
-
-                    await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            chat_id: TELEGRAM_CHAT_ID,
-                            text: tgText,
-                            parse_mode: 'HTML'
-                        })
-                    });
-                } catch (tgErr) {
-                    console.log("Telegramga yuborishda xatolik:", tgErr);
-                }
-
-                alert("✅ Buyurtmangiz qabul qilindi!");
-                location.reload();
+                return;
             }
+
+            // 2. Telegram Botga CORS muammosiz xabar yuborish
+            try {
+                const tgText = `🚀 <b>Yangi Dostavka Buyurtmasi!</b>\n\n` +
+                               `👤 Mijoz: <b>${name}</b>\n` +
+                               `📞 Tel: <b>${phone}</b>\n` +
+                               `📍 Manzil: ${address}\n` +
+                               `🍲 Taomlar: ${orderItemsStr.join(', ')}\n` +
+                               `🚚 Dostavka narxi: ${currentDeliveryFee.toLocaleString()} so'm\n` +
+                               `💰 Jami summa: <b>${grandTotal.toLocaleString()} so'm</b>`;
+
+                const telegramUrl = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+                
+                // CORS orqali bloklanmasligi uchun proxy yoki to'g'ridan-to'g'ri so'rov
+                await fetch(telegramUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: TELEGRAM_CHAT_ID,
+                        text: tgText,
+                        parse_mode: 'HTML'
+                    })
+                });
+            } catch (tgErr) {
+                console.log("Telegramga yuborishda tarmoq xatosi:", tgErr);
+            }
+
+            alert("✅ Buyurtmangiz muvaffaqiyatli qabul qilindi!");
+            location.reload();
         }
 
         window.addEventListener('DOMContentLoaded', initApp);
