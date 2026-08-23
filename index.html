@@ -294,7 +294,7 @@
                     <h1>CHEF HOTDOG</h1>
                 </div>
             </div>
-            <div class="header-subtext">🚀 Onlayn buyurtma va tezkor yetkazib berish[cite: 5]</div>
+            <div class="header-subtext">🚀 Onlayn buyurtma va tezkor yetkazib berish</div>
         </div>
 
         <div class="min-order-info" id="min-order-banner">
@@ -302,11 +302,11 @@
         </div>
     </div>
 
-    <h3 style="color:var(--gold-text); margin-top: 14px; margin-bottom: 10px;">🍽 Menyuni Tanlang:[cite: 5]</h3>
+    <h3 style="color:var(--gold-text); margin-top: 14px; margin-bottom: 10px;">🍽 Menyuni Tanlang:</h3>
     <div id="delivery-menu" class="pos-grid">Yuklanmoqda...</div>
 
     <div class="order-form">
-        <h3>📍 Yetkazib berish manzili:[cite: 5]</h3>
+        <h3>📍 Yetkazib berish manzili:</h3>
         
         <div id="out-of-zone-warning">❌ Bu yerda dastavka xizmati mavjud emas!</div>
 
@@ -331,11 +331,11 @@
             <label style="font-size:13px; font-weight:bold; color:var(--gold-text); display:block; margin-bottom:6px;">💳 To'lov turini tanlang:</label>
             <select id="payment-method" onchange="togglePaymentDetails()" style="margin-bottom:8px;">
                 <option value="cash">💵 Naqd pul (Kuryerga)</option>
-                <option value="card">💳 Karta orqali (Click / Payme)</option>
+                <option value="card">💳 Karta yoki QR kod orqali</option>
             </select>
 
             <div id="card-payment-info" style="display:none; text-align:center; padding:8px; background:rgba(0,0,0,0.5); border-radius:8px; border:1px solid #d4af37;">
-                <p style="font-size:11px; color:#ccc; margin-bottom:2px;">Quyidagi karta raqamiga o'tkazing:</p>
+                <p style="font-size:11px; color:#ccc; margin-bottom:2px;">Quyidagi karta raqamiga yoki QR kod orqali o'tkazing:</p>
                 <b id="display-card-num" style="font-size:15px; color:#f5d061; letter-spacing:1px;">Yuklanmoqda...</b><br>
                 <small id="display-card-holder" style="color:#aaa;"></small>
                 <div id="display-qr-container" style="margin-top:6px;"></div>
@@ -349,7 +349,7 @@
             <div style="font-size:11px; color:#a1a1aa;">Dostavka: <span id="delivery-cost">0</span> so'm</div>
             <div id="cart-total" style="font-size:16px; font-weight:900; color:var(--gold-text);">0 so'm</div>
         </div>
-        <button class="btn-submit" onclick="sendDeliveryOrder()">Buyurtma berish 🚀[cite: 5]</button>
+        <button class="btn-submit" onclick="sendDeliveryOrder()">Buyurtma berish 🚀</button>
     </div>
 
     <script>
@@ -606,8 +606,20 @@
             }
 
             const grandTotal = totalFoodAmount + currentDeliveryFee;
-            const paymentTypeText = payMethod === 'card' ? 'Karta orqali (Click/Payme)' : 'Naqd pul';
-            const statusText = `🛵 YETKAZISH: ${name} (${phone}) | To'lov: ${paymentTypeText} | Manzil: ${address} | GPS: ${selectedLat.toFixed(5)}, ${selectedLng.toFixed(5)} | Dostavka: ${currentDeliveryFee.toLocaleString()} so'm | Taomlar: ${orderItemsStr.join(', ')}`;
+            
+            // To'lov holatiga qarab rangli yozuvlar va statuslarni tayyorlash
+            let paymentStatusHtml = '';
+            let paymentStatusTg = '';
+
+            if (payMethod === 'card') {
+                paymentStatusHtml = '<span style="color: #10b981; font-weight: bold;">TO\'LANGAN</span>';
+                paymentStatusTg = '🟢 <b>TO\'LANGAN</b> (Karta / QR kod orqali)';
+            } else {
+                paymentStatusHtml = '<span style="color: #ef4444; font-weight: bold;">To\'lov naqt pul asosida</span>';
+                paymentStatusTg = '🔴 <b>To\'lov naqt pul asosida</b>';
+            }
+
+            const statusText = `🛵 YETKAZISH: ${name} (${phone}) | Holat: ${payMethod === 'card' ? "TO'LANGAN" : "To'lov naqt pul asosida"} | Manzil: ${address} | GPS: ${selectedLat.toFixed(5)}, ${selectedLng.toFixed(5)} | Dostavka: ${currentDeliveryFee.toLocaleString()} so'm | Taomlar: ${orderItemsStr.join(', ')}`;
 
             // 1. Bazaga yozish
             const { error } = await client.from('sales').insert([{
@@ -624,10 +636,10 @@
 
             // 2. Telegram Botga xabar yuborish
             try {
-                const tgText = `🚀 <b>Yangi Dostavka Buyurtmasi![cite: 5]</b>\n\n` +
+                const tgText = `🚀 <b>Yangi Dostavka Buyurtmasi!</b>\n\n` +
                                `👤 Mijoz: <b>${name}</b>\n` +
                                `📞 Tel: <b>${phone}</b>\n` +
-                               `💳 To'lov: <b>${paymentTypeText}</b>\n` +
+                               `💳 To'lov holati: ${paymentStatusTg}\n` +
                                `📍 Manzil: ${address}\n` +
                                `🍲 Taomlar: ${orderItemsStr.join(', ')}\n` +
                                `🚚 Dostavka narxi: ${currentDeliveryFee.toLocaleString()} so'm\n` +
