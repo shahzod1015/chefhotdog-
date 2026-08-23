@@ -334,6 +334,10 @@
         const SUPABASE_URL = "https://wrrsvrgdinfmnuwewtoa.supabase.co";
         const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndycnN2cmdkaW5mbW51d2V3dG9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY5NzM0ODIsImV4cCI6MjEwMjU0OTQ4Mn0.YRHratsKVG42IY6YKokDycRy23oU8N3b7jO-o3tpQF4";
         
+        // Telegram Bot ma'lumotlari
+        const TELEGRAM_BOT_TOKEN = "8656105414:AAEQoNLQSqtOE-LFkSDkqyAczI6TuWdnY7Y";
+        const TELEGRAM_CHAT_ID = "8962661283";
+        
         let db;
         let cart = {};
         let menuItems = [];
@@ -412,7 +416,6 @@
             document.getElementById('min-order-val').innerText = zone1Min.toLocaleString();
             currentDynamicMinOrder = zone1Min;
 
-            // Xaritadagi doiralarni yangilash (agar allaqachon chizilgan bo'lsa)
             if (map) {
                 if (circle1) {
                     circle1.setLatLng([cafeLat, cafeLng]);
@@ -489,13 +492,11 @@
             await loadSettings();
             await loadMenu();
 
-            // Xaritani yaratish
             map = L.map('map').setView([cafeLat, cafeLng], 14);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19
             }).addTo(map);
 
-            // 1-Zona yashil doirasi (Aniq ko'rinadigan qilib qo'shildi)
             circle1 = L.circle([cafeLat, cafeLng], {
                 color: '#10b981',
                 weight: 2,
@@ -504,7 +505,6 @@
                 radius: zone1Km * 1000
             }).addTo(map);
 
-            // 2-Zona qizil doirasi (Aniq ko'rinadigan qilib qo'shildi)
             circle2 = L.circle([cafeLat, cafeLng], {
                 color: '#ef4444',
                 weight: 2,
@@ -604,6 +604,29 @@
             if (error) {
                 alert("Xatolik: " + error.message);
             } else {
+                // TELEGRAM BOTGA XABAR YUBORISH
+                try {
+                    const tgText = `🚀 <b>Yangi Dostavka Buyurtmasi!</b>\n\n` +
+                                   `👤 Mijoz: <b>${name}</b>\n` +
+                                   `📞 Tel: <b>${phone}</b>\n` +
+                                   `📍 Manzil: ${address}\n` +
+                                   `🍲 Taomlar: ${orderItemsStr.join(', ')}\n` +
+                                   `🚚 Dostavka narxi: ${currentDeliveryFee.toLocaleString()} so'm\n` +
+                                   `💰 Jami summa: <b>${grandTotal.toLocaleString()} so'm</b>`;
+
+                    await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            chat_id: TELEGRAM_CHAT_ID,
+                            text: tgText,
+                            parse_mode: 'HTML'
+                        })
+                    });
+                } catch (tgErr) {
+                    console.log("Telegramga yuborishda xatolik:", tgErr);
+                }
+
                 alert("✅ Buyurtmangiz qabul qilindi!");
                 location.reload();
             }
