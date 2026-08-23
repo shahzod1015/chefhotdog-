@@ -33,7 +33,6 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
             margin: 0; 
             padding: 0; 
-            /* Ekranni kattalashtirib yuborish va keraksiz zoom effekti oldini olish */
             touch-action: manipulation;
             -webkit-text-size-adjust: 100%;
         }
@@ -45,10 +44,10 @@
             color: #f1f5f9; 
             min-height: 100vh;
             padding-bottom: 120px;
-            overflow-x: hidden; /* Gorizontal skroll bo'lishini taqiqlaydi */
+            overflow-x: hidden;
         }
 
-        /* STICKY TOP CONTAINER (Logo va Limit bloki skroll bo'lganda tepada qoladi) */
+        /* STICKY TOP CONTAINER */
         .sticky-top-section {
             position: sticky;
             top: 0;
@@ -78,7 +77,7 @@
             text-align: center;
         }
 
-        .header img {
+        .header img.logo-img {
             width: 65px;
             height: 65px;
             border-radius: 50%;
@@ -99,6 +98,43 @@
         .header p {
             font-size: 11px;
             color: #a1a1aa;
+        }
+
+        /* IJTIMOIY TARMOQLAR VA ALOQA TUGMALARI */
+        .social-contacts {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            margin-top: 6px;
+            flex-wrap: wrap;
+        }
+
+        .social-btn {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 6px 10px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border: var(--gold-border-thin);
+            color: #fff;
+            text-decoration: none;
+            font-size: 11px;
+            font-weight: 600;
+            transition: 0.2s ease;
+        }
+
+        .social-btn:active {
+            transform: scale(0.95);
+            background: rgba(212, 175, 55, 0.2);
+        }
+
+        .social-btn img {
+            width: 16px;
+            height: 16px;
+            object-fit: contain;
         }
 
         .min-order-info {
@@ -261,12 +297,27 @@
 </head>
 <body>
 
-    <!-- QIMIRLAMAYDIGAN TAPA QISM (STICKY HEADER + LIMIT) -->
+    <!-- STICKY HEADER + LIMIT + SOCIAL LINKS -->
     <div class="sticky-top-section">
         <div class="header">
-            <img src="https://i.ibb.co/YFZh8t0q/content.png" alt="CHEF Hotdog">
+            <img src="https://i.ibb.co/YFZh8t0q/content.png" alt="CHEF Hotdog" class="logo-img">
             <h1>CHEF HOTDOG</h1>
             <p>🚀 Onlayn buyurtma va tezkor yetkazib berish</p>
+
+            <!-- ALOQA VA IJTIMOIY TARMOQLAR -->
+            <div class="social-contacts">
+                <a href="tel:+998776301521" class="social-btn">
+                    📞 +998 77 630 15 21
+                </a>
+                <a href="https://t.me/chef_hotdog" target="_blank" class="social-btn">
+                    <img src="https://cdn-icons-png.flaticon.com/512/2111/2111646.png" alt="Telegram">
+                    Telegram
+                </a>
+                <a href="https://instagram.com/chef__hotdog" target="_blank" class="social-btn">
+                    <img src="https://cdn-icons-png.flaticon.com/512/1384/1384063.png" alt="Instagram">
+                    @chef__hotdog
+                </a>
+            </div>
         </div>
 
         <div class="min-order-info">
@@ -421,7 +472,7 @@
                 className: 'cafe-marker-icon'
             });
 
-            // Kafe belgisi va POPUP (EMOJI ISHLATILMAGAN, LOGO RASMI)
+            // Kafe belgisi va POPUP
             cafeMarker = L.marker([cafeLat, cafeLng], { icon: cafeIcon }).addTo(map);
             
             const popupHTML = `
