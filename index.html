@@ -40,7 +40,7 @@
             padding: 12px; 
             color: #f1f5f9; 
             min-height: 100vh;
-            padding-bottom: 120px;
+            padding-bottom: 140px;
             overflow-x: hidden;
         }
 
@@ -95,8 +95,6 @@
             font-weight: 600;
             width: fit-content;
         }
-
-        .contact-btn svg { width: 15px; height: 15px; flex-shrink: 0; }
 
         .brand-right {
             display: flex;
@@ -191,7 +189,7 @@
 
         .order-form h3 { color: var(--gold-text); font-size: 16px; margin-bottom: 12px; }
 
-        input {
+        input, select {
             width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 10px;
             border: var(--gold-border-thin); background: #08080a; color: #fff; font-size: 14px;
         }
@@ -223,7 +221,7 @@
             bottom: 12px;
             left: 12px;
             right: 12px;
-            background: rgba(20, 20, 24, 0.95);
+            background: rgba(20, 20, 24, 0.98);
             border: var(--gold-border);
             backdrop-filter: blur(10px);
             border-radius: 16px;
@@ -271,6 +269,14 @@
         .zone-badge-box { display: flex; gap: 8px; margin-bottom: 10px; }
         .zone-badge { flex: 1; padding: 8px; border-radius: 8px; text-align: center; font-size: 11px; font-weight: bold; }
         .cafe-marker-icon { border-radius: 50%; border: 2px solid #d4af37; object-fit: cover; }
+
+        .payment-box {
+            background: rgba(20, 20, 25, 0.9);
+            border: var(--gold-border-thin);
+            padding: 12px;
+            border-radius: 12px;
+            margin-top: 12px;
+        }
     </style>
 </head>
 <body>
@@ -288,7 +294,7 @@
                     <h1>CHEF HOTDOG</h1>
                 </div>
             </div>
-            <div class="header-subtext">🚀 Onlayn buyurtma va tezkor yetkazib berish</div>
+            <div class="header-subtext">🚀 Onlayn buyurtma va tezkor yetkazib berish[cite: 5]</div>
         </div>
 
         <div class="min-order-info" id="min-order-banner">
@@ -296,11 +302,11 @@
         </div>
     </div>
 
-    <h3 style="color:var(--gold-text); margin-top: 14px; margin-bottom: 10px;">🍽 Menyuni Tanlang:</h3>
+    <h3 style="color:var(--gold-text); margin-top: 14px; margin-bottom: 10px;">🍽 Menyuni Tanlang:[cite: 5]</h3>
     <div id="delivery-menu" class="pos-grid">Yuklanmoqda...</div>
 
     <div class="order-form">
-        <h3>📍 Yetkazib berish manzili:</h3>
+        <h3>📍 Yetkazib berish manzili:[cite: 5]</h3>
         
         <div id="out-of-zone-warning">❌ Bu yerda dastavka xizmati mavjud emas!</div>
 
@@ -319,22 +325,37 @@
         <p style="font-size:12px; color:#a1a1aa; margin-bottom: 6px;">Joylashuvingizni xaritadan belgilang:</p>
         <div id="map"></div>
         <input type="text" id="cust-address" placeholder="Tanlangan joylashuv koordinatasi" readonly>
+
+        <!-- TO'LOV TURI -->
+        <div class="payment-box">
+            <label style="font-size:13px; font-weight:bold; color:var(--gold-text); display:block; margin-bottom:6px;">💳 To'lov turini tanlang:</label>
+            <select id="payment-method" onchange="togglePaymentDetails()" style="margin-bottom:8px;">
+                <option value="cash">💵 Naqd pul (Kuryerga)</option>
+                <option value="card">💳 Karta orqali (Click / Payme)</option>
+            </select>
+
+            <div id="card-payment-info" style="display:none; text-align:center; padding:8px; background:rgba(0,0,0,0.5); border-radius:8px; border:1px solid #d4af37;">
+                <p style="font-size:11px; color:#ccc; margin-bottom:2px;">Quyidagi karta raqamiga o'tkazing:</p>
+                <b id="display-card-num" style="font-size:15px; color:#f5d061; letter-spacing:1px;">Yuklanmoqda...</b><br>
+                <small id="display-card-holder" style="color:#aaa;"></small>
+                <div id="display-qr-container" style="margin-top:6px;"></div>
+            </div>
+        </div>
     </div>
 
     <div class="cart-bar">
         <div>
             <div style="font-size:11px; color:#a1a1aa;">Jami taomlar: <span id="food-total">0</span> so'm</div>
             <div style="font-size:11px; color:#a1a1aa;">Dostavka: <span id="delivery-cost">0</span> so'm</div>
-            <div id="cart-total" style="font-size:17px; font-weight:900; color:var(--gold-text);">0 so'm</div>
+            <div id="cart-total" style="font-size:16px; font-weight:900; color:var(--gold-text);">0 so'm</div>
         </div>
-        <button class="btn-submit" onclick="sendDeliveryOrder()">Buyurtma berish 🚀</button>
+        <button class="btn-submit" onclick="sendDeliveryOrder()">Buyurtma berish 🚀[cite: 5]</button>
     </div>
 
     <script>
         const SUPABASE_URL = "https://wrrsvrgdinfmnuwewtoa.supabase.co";
         const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndycnN2cmdkaW5mbW51d2V3dG9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY5NzM0ODIsImV4cCI6MjEwMjU0OTQ4Mn0.YRHratsKVG42IY6YKokDycRy23oU8N3b7jO-o3tpQF4";
         
-        // Yangi Telegram Bot ma'lumotlari
         const TELEGRAM_BOT_TOKEN = "8992397944:AAFPRv6NKFKn7dLz6hxBcLSqf93z5VfAvNs";
         const TELEGRAM_CHAT_ID = "8630700790";
         
@@ -342,6 +363,7 @@
         let cart = {};
         let menuItems = [];
         let map, userMarker, cafeMarker, circle1, circle2;
+        let paymentSettings = null;
 
         let cafeLat = 38.849449, cafeLng = 65.793410; 
         let zone1Km = 0.7, zone1Price = 5000, zone1Min = 48000;
@@ -408,6 +430,16 @@
                     zone2Km = set.zone2_km || zone2Km;
                     zone2Price = set.zone2_price || zone2Price;
                     zone2Min = set.zone2_min_order !== undefined ? set.zone2_min_order : zone2Min;
+                }
+
+                const { data: pSet } = await client.from('payment_settings').select('*').maybeSingle();
+                paymentSettings = pSet;
+                if (paymentSettings) {
+                    document.getElementById('display-card-num').innerText = paymentSettings.card_number || "Kiritilmagan";
+                    document.getElementById('display-card-holder').innerText = paymentSettings.card_holder || "";
+                    if(paymentSettings.qr_image_url) {
+                        document.getElementById('display-qr-container').innerHTML = `<img src="${paymentSettings.qr_image_url}" style="width:100px; height:100px; border-radius:6px; border:1px solid #d4af37; object-fit:cover;">`;
+                    }
                 }
             } catch(e) { console.log(e); }
 
@@ -488,30 +520,20 @@
             return foodTotal;
         }
 
+        function togglePaymentDetails() {
+            const method = document.getElementById('payment-method').value;
+            document.getElementById('card-payment-info').style.display = (method === 'card') ? 'block' : 'none';
+        }
+
         async function initApp() {
             await loadSettings();
             await loadMenu();
 
             map = L.map('map').setView([cafeLat, cafeLng], 14);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 19
-            }).addTo(map);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
 
-            circle1 = L.circle([cafeLat, cafeLng], {
-                color: '#10b981',
-                weight: 2,
-                fillColor: '#10b981',
-                fillOpacity: 0.15,
-                radius: zone1Km * 1000
-            }).addTo(map);
-
-            circle2 = L.circle([cafeLat, cafeLng], {
-                color: '#ef4444',
-                weight: 2,
-                fillColor: '#ef4444',
-                fillOpacity: 0.08,
-                radius: zone2Km * 1000
-            }).addTo(map);
+            circle1 = L.circle([cafeLat, cafeLng], { color: '#10b981', weight: 2, fillColor: '#10b981', fillOpacity: 0.15, radius: zone1Km * 1000 }).addTo(map);
+            circle2 = L.circle([cafeLat, cafeLng], { color: '#ef4444', weight: 2, fillColor: '#ef4444', fillOpacity: 0.08, radius: zone2Km * 1000 }).addTo(map);
 
             const cafeIcon = L.icon({
                 iconUrl: "https://wrrsvrgdinfmnuwewtoa.supabase.co/storage/v1/object/public/menu-images/Untitled%20folder/content.png",
@@ -544,17 +566,8 @@
 
             const client = getClient();
             if (client) {
-                client.channel('public:menu')
-                    .on('postgres_changes', { event: '*', schema: 'public', table: 'menu' }, () => {
-                        loadMenu();
-                    })
-                    .subscribe();
-
-                client.channel('public:delivery_settings')
-                    .on('postgres_changes', { event: '*', schema: 'public', table: 'delivery_settings' }, () => {
-                        loadSettings();
-                    })
-                    .subscribe();
+                client.channel('public:menu').on('postgres_changes', { event: '*', schema: 'public', table: 'menu' }, () => loadMenu()).subscribe();
+                client.channel('public:delivery_settings').on('postgres_changes', { event: '*', schema: 'public', table: 'delivery_settings' }, () => loadSettings()).subscribe();
             }
         }
 
@@ -569,6 +582,7 @@
             const name = document.getElementById('cust-name').value.trim();
             const phone = document.getElementById('cust-phone').value.trim();
             const address = document.getElementById('cust-address').value;
+            const payMethod = document.getElementById('payment-method').value;
 
             if (!name || !phone) return alert("Ismingiz va telefon raqamingizni kiriting!");
 
@@ -592,7 +606,8 @@
             }
 
             const grandTotal = totalFoodAmount + currentDeliveryFee;
-            const statusText = `🛵 YETKAZISH: ${name} (${phone}) | Manzil: ${address} | GPS: ${selectedLat.toFixed(5)}, ${selectedLng.toFixed(5)} | Dostavka: ${currentDeliveryFee.toLocaleString()} so'm | Taomlar: ${orderItemsStr.join(', ')}`;
+            const paymentTypeText = payMethod === 'card' ? 'Karta orqali (Click/Payme)' : 'Naqd pul';
+            const statusText = `🛵 YETKAZISH: ${name} (${phone}) | To'lov: ${paymentTypeText} | Manzil: ${address} | GPS: ${selectedLat.toFixed(5)}, ${selectedLng.toFixed(5)} | Dostavka: ${currentDeliveryFee.toLocaleString()} so'm | Taomlar: ${orderItemsStr.join(', ')}`;
 
             // 1. Bazaga yozish
             const { error } = await client.from('sales').insert([{
@@ -609,17 +624,16 @@
 
             // 2. Telegram Botga xabar yuborish
             try {
-                const tgText = `🚀 <b>Yangi Dostavka Buyurtmasi!</b>\n\n` +
+                const tgText = `🚀 <b>Yangi Dostavka Buyurtmasi![cite: 5]</b>\n\n` +
                                `👤 Mijoz: <b>${name}</b>\n` +
                                `📞 Tel: <b>${phone}</b>\n` +
+                               `💳 To'lov: <b>${paymentTypeText}</b>\n` +
                                `📍 Manzil: ${address}\n` +
                                `🍲 Taomlar: ${orderItemsStr.join(', ')}\n` +
                                `🚚 Dostavka narxi: ${currentDeliveryFee.toLocaleString()} so'm\n` +
                                `💰 Jami summa: <b>${grandTotal.toLocaleString()} so'm</b>`;
 
-                const telegramUrl = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
-                
-                await fetch(telegramUrl, {
+                await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -629,7 +643,7 @@
                     })
                 });
             } catch (tgErr) {
-                console.log("Telegramga yuborishda tarmoq xatosi:", tgErr);
+                console.log("Telegramga yuborishda xatolik:", tgErr);
             }
 
             alert("✅ Buyurtmangiz muvaffaqiyatli qabul qilindi!");
