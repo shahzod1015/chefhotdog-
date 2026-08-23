@@ -61,7 +61,7 @@
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.8);
         }
 
-        /* YANGILANGAN HEADER BLOKI */
+        /* HEADER BLOKI */
         .header-card {
             background: var(--card-bg);
             border-radius: 20px;
@@ -387,7 +387,8 @@
 
     <script>
         const SUPABASE_URL = "https://wrrsvrgdinfmnuwewtoa.supabase.co";
-        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndycnN2cmdkaW5mbW51d2V3dG9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY5NzM0ODIsImV4cCI62102549482f0.YRHratsKVG42IY6YKokDycRy23oU8N3b7jO-o3tpQF4";
+        // To'g'rilangan aniq Supabase Anon Key
+        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndycnN2cmdkaW5mbW51d2V3dG9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY5NzM0ODIsImV4cCI6MjEwMjU0OTQ4Mn0.YRHratsKVG42IY6YKokDycRy23oU8N3b7jO-o3tpQF4";
         const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         const MIN_ORDER_AMOUNT = 48000;
@@ -542,7 +543,10 @@
 
         async function loadMenu() {
             const { data, error } = await db.from('menu').select('*');
-            if(error) return alert("Menyu yuklanmadi");
+            if(error) {
+                console.error(error);
+                return alert("Menyu yuklanmadi");
+            }
 
             menuItems = data || [];
             let stopList = JSON.parse(localStorage.getItem('chef_stop_list')) || [];
