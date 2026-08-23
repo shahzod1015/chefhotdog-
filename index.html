@@ -296,7 +296,6 @@
         let menuItems = [];
         let map, userMarker, cafeMarker, circle1, circle2;
 
-        // KAFE KOORDINATASI (Majburiy biriktirildi)
         const cafeLat = 38.849449, cafeLng = 65.793410; 
         
         let zone1Km = 0.7, zone1Price = 5000;
@@ -352,7 +351,7 @@
                 attribution: '© OpenStreetMap'
             }).addTo(map);
 
-            // 1-ZONA (Yashil doira)
+            // 1-ZONA
             circle1 = L.circle([cafeLat, cafeLng], {
                 color: '#10b981',
                 fillColor: '#10b981',
@@ -360,7 +359,6 @@
                 radius: zone1Km * 1000
             }).addTo(map);
 
-            // 1-Zona yozuvi
             const zone1TopLat = cafeLat + (zone1Km / 111.32);
             L.marker([zone1TopLat, cafeLng], {
                 icon: L.divIcon({
@@ -371,7 +369,7 @@
                 })
             }).addTo(map);
 
-            // 2-ZONA (Qizil doira)
+            // 2-ZONA
             circle2 = L.circle([cafeLat, cafeLng], {
                 color: '#ef4444',
                 fillColor: '#ef4444',
@@ -379,7 +377,6 @@
                 radius: zone2Km * 1000
             }).addTo(map);
 
-            // 2-Zona yozuvi (qizil doiraning yuqori chetida)
             const zone2TopLat = cafeLat + (zone2Km / 111.32);
             L.marker([zone2TopLat, cafeLng], {
                 icon: L.divIcon({
@@ -390,23 +387,25 @@
                 })
             }).addTo(map);
 
-            // Kafe logotipi uchun maxsus icon
+            // Kafe logotipi marker belgisi
             const cafeIcon = L.icon({
                 iconUrl: CAFE_LOGO_URL,
                 iconSize: [40, 40],
                 iconAnchor: [20, 20],
-                popupAnchor: [0, -22],
+                popupAnchor: [0, -20],
                 className: 'cafe-marker-icon'
             });
 
-            // Kafe markazi va popup ichidagi logotip (Burger emojisi olib tashlandi)
-            cafeMarker = L.marker([cafeLat, cafeLng], { icon: cafeIcon }).addTo(map)
-                .bindPopup(`
-                    <div style="display: flex; align-items: center; gap: 8px; font-size: 13px;">
-                        <img src="${CAFE_LOGO_URL}" style="width: 26px; height: 26px; border-radius: 50%; border: 1px solid #d4af37; object-fit: cover;">
-                        <b style="color: #111;">CHEF Hotdog Kafe</b>
-                    </div>
-                `);
+            // Kafe belgisi va POPUP (EMOJI TIKLANMAYDI, FAQAT RASM)
+            cafeMarker = L.marker([cafeLat, cafeLng], { icon: cafeIcon }).addTo(map);
+            
+            const popupHTML = `
+                <div style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: bold; color: #111;">
+                    <img src="${CAFE_LOGO_URL}" style="width: 26px; height: 26px; border-radius: 50%; object-fit: cover; border: 1px solid #d4af37;">
+                    <span>CHEF Hotdog Kafe</span>
+                </div>
+            `;
+            cafeMarker.bindPopup(popupHTML);
 
             // Mijoz belgisi
             userMarker = L.marker([cafeLat, cafeLng], { draggable: true }).addTo(map);
