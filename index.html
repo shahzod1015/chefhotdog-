@@ -334,9 +334,9 @@
         const SUPABASE_URL = "https://wrrsvrgdinfmnuwewtoa.supabase.co";
         const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndycnN2cmdkaW5mbW51d2V3dG9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY5NzM0ODIsImV4cCI6MjEwMjU0OTQ4Mn0.YRHratsKVG42IY6YKokDycRy23oU8N3b7jO-o3tpQF4";
         
-        // Telegram Bot ma'lumotlari
-        const TELEGRAM_BOT_TOKEN = "8656105414:AAEQoNLQSqtOE-LFkSDkqyAczI6TuWdnY7Y";
-        const TELEGRAM_CHAT_ID = "8962661283";
+        // Yangi Telegram Bot ma'lumotlari
+        const TELEGRAM_BOT_TOKEN = "8992397944:AAFPRv6NKFKn7dLz6hxBcLSqf93z5VfAvNs";
+        const TELEGRAM_CHAT_ID = "8630700790";
         
         let db;
         let cart = {};
@@ -607,7 +607,7 @@
                 return;
             }
 
-            // 2. Telegram Botga CORS muammosiz xabar yuborish
+            // 2. Telegram Botga xabar yuborish
             try {
                 const tgText = `🚀 <b>Yangi Dostavka Buyurtmasi!</b>\n\n` +
                                `👤 Mijoz: <b>${name}</b>\n` +
@@ -619,7 +619,6 @@
 
                 const telegramUrl = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
                 
-                // CORS orqali bloklanmasligi uchun proxy yoki to'g'ridan-to'g'ri so'rov
                 await fetch(telegramUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
