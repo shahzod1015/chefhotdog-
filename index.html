@@ -682,12 +682,12 @@
             let paymentStatusTg = '';
             let statusText = '';
 
-            // Admin panel uchun HTML ranglar bilan to'g'ri format
+            // Admin panel uchun toza matn (tugma buzilmasligi uchun), Telegram uchun esa rangli HTML format
             if (payMethod === 'card') {
-                statusText = `🛵 YETKAZISH: ${name} (${phone}) | Holat: <span style="color: #10b981; font-weight: bold;">TO'LANGAN</span> | Chek: <a href="${receiptFileUrl}" target="_blank" style="color: #3b82f6; text-decoration: underline;">Chekni ko'rsatish / ochish</a> | Manzil: ${address} | Dostavka: ${currentDeliveryFee.toLocaleString()} so'm | Taomlar: ${orderItemsStr.join(', ')}`;
+                statusText = `🛵 YETKAZISH: ${name} (${phone}) | Holat: TO'LANGAN | Chek: ${receiptFileUrl} | Manzil: ${address} | Dostavka: ${currentDeliveryFee.toLocaleString()} so'm | Taomlar: ${orderItemsStr.join(', ')}`;
                 paymentStatusTg = `🟢 <b>TO'LANGAN</b> (Karta/QR orqali)\n📎 Chek fayli: <a href="${receiptFileUrl}" target="_blank">Chekni ochish / yuklab olish</a>`;
             } else {
-                statusText = `🛵 YETKAZISH: ${name} (${phone}) | Holat: <span style="color: #ef4444; font-weight: bold;">NAQD PUL</span> | Manzil: ${address} | Dostavka: ${currentDeliveryFee.toLocaleString()} so'm | Taomlar: ${orderItemsStr.join(', ')}`;
+                statusText = `🛵 YETKAZISH: ${name} (${phone}) | Holat: NAQD PUL | Manzil: ${address} | Dostavka: ${currentDeliveryFee.toLocaleString()} so'm | Taomlar: ${orderItemsStr.join(', ')}`;
                 paymentStatusTg = '🔴 <b>To\'lov naqd pul asosida</b>';
             }
 
