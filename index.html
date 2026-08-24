@@ -692,7 +692,6 @@
         }
 
         async function initApp() {
-            // Supabase kutubxonasi to'liq yuklanganini tekshiramiz
             let attempts = 0;
             while (!window.supabase && attempts < 20) {
                 await new Promise(r => setTimeout(r, 100));
@@ -736,12 +735,6 @@
                 const coord = userMarker.getLatLng();
                 updateCoords(coord.lat, coord.lng);
             });
-
-            const client = getClient();
-            if (client) {
-                client.channel('public:menu').on('postgres_changes', { event: '*', schema: 'public', table: 'menu' }, () => loadMenu()).subscribe();
-                client.channel('public:delivery_settings').on('postgres_changes', { event: '*', schema: 'public', table: 'delivery_settings' }, () => loadSettings()).subscribe();
-            }
         }
 
         async function sendDeliveryOrder() {
