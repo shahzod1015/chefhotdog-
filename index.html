@@ -130,14 +130,9 @@
             border-top: 1px dashed rgba(212, 175, 55, 0.15);
         }
 
-        .top-action-bar {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 8px;
-        }
-
         .btn-my-order {
-            flex: 1;
+            width: 100%;
+            margin-top: 8px;
             background: var(--gold-btn-grad);
             color: #000;
             border: none;
@@ -159,6 +154,7 @@
             font-size: 13px !important;
             color: var(--blue-accent) !important;
             font-weight: 700 !important;
+            margin-top: 8px;
         }
 
         .pos-grid { 
@@ -339,53 +335,6 @@
             accent-color: #d4af37;
             cursor: pointer;
         }
-
-        /* Buyurtma Modal Oynasi */
-        #order-modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85);
-            z-index: 10000;
-            justify-content: center;
-            align-items: center;
-            padding: 16px;
-        }
-        .modal-content {
-            background: #121216;
-            border: var(--gold-border);
-            border-radius: 18px;
-            padding: 20px;
-            width: 100%;
-            max-width: 450px;
-            max-height: 85vh;
-            overflow-y: auto;
-            position: relative;
-        }
-        .close-modal {
-            position: absolute;
-            top: 15px; right: 15px;
-            background: #ef4444;
-            color: #fff;
-            border: none;
-            width: 30px; height: 30px;
-            border-radius: 50%;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        .btn-yandex-live {
-            display: block;
-            text-align: center;
-            margin-top: 12px;
-            background: #ef4444;
-            color: #fff;
-            padding: 12px;
-            border-radius: 10px;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 13px;
-            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
-        }
     </style>
 </head>
 <body>
@@ -404,9 +353,8 @@
                 </div>
             </div>
             <div class="header-subtext">🚀 Onlayn buyurtma va tezkor yetkazib berish</div>
-        </div>
-
-        <div class="top-action-bar">
+            
+            <!-- Buyurtmam haqida tugmasi -->
             <button class="btn-my-order" onclick="openMyOrderModal()">🛒 Buyurtmam haqida</button>
         </div>
 
@@ -477,10 +425,10 @@
     </div>
 
     <!-- Buyurtmam haqida Modal Oynasi -->
-    <div id="order-modal">
-        <div class="modal-content">
-            <button class="close-modal" onclick="closeMyOrderModal()">✕</button>
-            <h3 style="color: var(--gold-text); margin-bottom: 12px;">📦 Mening Buyurtmam</h3>
+    <div id="order-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:10000; justify-content:center; align-items:center; padding:16px;">
+        <div style="background:#121216; border: 1px solid rgba(212,175,55,0.4); border-radius:18px; padding:20px; width:100%; max-width:450px; position:relative;">
+            <button onclick="document.getElementById('order-modal').style.display='none'" style="position:absolute; top:15px; right:15px; background:#ef4444; color:#fff; border:none; width:30px; height:30px; border-radius:50%; font-weight:bold; cursor:pointer;">✕</button>
+            <h3 style="color: #f5d061; margin-bottom: 12px;">📦 Mening Buyurtmam</h3>
             <div id="my-order-details" style="font-size: 13px; color: #ddd;">Buyurtmalar tekshirilmoqda...</div>
         </div>
     </div>
@@ -523,21 +471,16 @@
             return db;
         }
 
-        // Modal boshqaruvi
+        // Buyurtmam haqida modal oynasini ochish va oxirgi buyurtmani yuklash
         function openMyOrderModal() {
             document.getElementById('order-modal').style.display = 'flex';
             fetchMyLatestOrder();
-        }
-
-        function closeMyOrderModal() {
-            document.getElementById('order-modal').style.display = 'none';
         }
 
         async function fetchMyLatestOrder() {
             const client = getClient();
             if (!client) return;
 
-            // Oxirgi buyurtmani tekshirish
             const { data: sales, error } = await client.from('sales').select('*').order('created_at', { ascending: false }).limit(1);
             
             if (error || !sales || sales.length === 0) {
@@ -547,7 +490,6 @@
 
             const s = sales[0];
             const statusStr = (s.status || '');
-
             let statusText = "Qabul qilinmoqda";
             let mapButton = "";
 
@@ -557,28 +499,24 @@
                 statusText = "✅ Buyurtma yetkazib berildi";
             } else if (statusStr.includes('KURYERGA BERILDI')) {
                 statusText = "🛵 Kuryer yo'lda (Yetkazilmoqda)";
-                
-                // Kuryer va mijoz koordinatalari orqali Yandex xaritani ochish
                 if (s.courier_lat && s.courier_lng && s.lat && s.lng) {
-                    mapButton = `<a class="btn-yandex-live" href="https://yandex.uz/maps/?rtext=${s.courier_lat},${s.courier_lng}~${s.lat},${s.lng}&rtt=auto" target="_blank">🗺 Yandex Xaritada Kuryerni Ko'rish</a>`;
+                    mapButton = `<a href="https://yandex.uz/maps/?rtext=${s.courier_lat},${s.courier_lng}~${s.lat},${s.lng}&rtt=auto" target="_blank" style="display:block; text-align:center; margin-top:12px; background:#ef4444; color:#fff; padding:12px; border-radius:10px; text-decoration:none; font-weight:bold;">🗺 Yandex Xaritada Kuryerni Ko'rish</a>`;
                 } else if (s.lat && s.lng) {
-                    mapButton = `<a class="btn-yandex-live" href="https://yandex.uz/maps/?rtext=~${s.lat},${s.lng}&rtt=auto" target="_blank">🗺 Manzilni Xaritada Ochish</a>`;
+                    mapButton = `<a href="https://yandex.uz/maps/?rtext=~${s.lat},${s.lng}&rtt=auto" target="_blank" style="display:block; text-align:center; margin-top:12px; background:#ef4444; color:#fff; padding:12px; border-radius:10px; text-decoration:none; font-weight:bold;">🗺 Manzilni Xaritada Ochish</a>`;
                 }
             } else if (statusStr.includes('TAYYOR')) {
                 statusText = "⏱ Buyurtma tayyorlandi, kuryer biriktirilishini kutyapti";
             }
 
-            let html = `
+            document.getElementById('my-order-details').innerHTML = `
                 <div style="background: rgba(20,20,25,0.9); border: 1px solid rgba(212,175,55,0.3); padding: 12px; border-radius: 12px;">
                     <p style="font-size: 13px; margin-bottom: 6px;"><b>Buyurtma #${s.id}</b></p>
-                    <p style="font-size: 13px; color: var(--gold-text); margin-bottom: 6px;"><b>Holati:</b> ${statusText}</p>
+                    <p style="font-size: 13px; color: #f5d061; margin-bottom: 6px;"><b>Holati:</b> ${statusText}</p>
                     <p style="font-size: 12px; color: #ccc; margin-bottom: 6px;"><b>Tafsilotlar:</b> ${statusStr.replace(/\[.*?\]/g, '')}</p>
                     <p style="font-size: 13px; color: #aaa; margin-bottom: 8px;"><b>Jami summa:</b> ${Number(s.total_amount || 0).toLocaleString()} so'm</p>
                     ${mapButton}
                 </div>
             `;
-
-            document.getElementById('my-order-details').innerHTML = html;
         }
 
         function calculateDistance(lat1, lon1, lat2, lon2) {
