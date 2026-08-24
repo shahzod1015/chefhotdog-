@@ -355,7 +355,6 @@
         <input type="text" id="cust-name" placeholder="Ismingiz" required>
         <input type="tel" id="cust-phone" placeholder="Telefon raqamingiz (+998 ...)" required>
         
-        <!-- Yangi qo'shilgan qo'shimcha ma'lumotlar maydoni -->
         <div class="form-row-grid">
             <input type="text" id="cust-damafon" placeholder="Damafon kod (ixtiyoriy)">
             <input type="text" id="cust-podezd" placeholder="Podezd">
@@ -660,7 +659,6 @@
             const name = document.getElementById('cust-name').value.trim();
             const phone = document.getElementById('cust-phone').value.trim();
             
-            // Qo'shimcha ma'lumotlarni o'qib olish
             const damafon = document.getElementById('cust-damafon').value.trim();
             const podezd = document.getElementById('cust-podezd').value.trim();
             const etaj = document.getElementById('cust-etaj').value.trim();
@@ -721,7 +719,6 @@
 
             const grandTotal = totalFoodAmount + currentDeliveryFee;
             
-            // Qo'shimcha ma'lumotlarni matn ko'rinishida jamlash
             let extraDetailsStr = `Manzil: ${address}`;
             if (podezd) extraDetailsStr += `, Podezd: ${podezd}`;
             if (etaj) extraDetailsStr += `, Etaj: ${etaj}`;
@@ -731,6 +728,8 @@
             let statusText = '';
             if (payMethod === 'card' && receiptFileUrl) {
                 statusText = `TO'LANGAN - YETKAZISH: ${name} (${phone}) | ${extraDetailsStr} | Dostavka: ${currentDeliveryFee.toLocaleString()} so'm | Taomlar: ${orderItemsStr.join(', ')} | Chek: ${receiptFileUrl}`;
+            } else if (payMethod === 'cash') {
+                statusText = `TO'LOV: <span style="color: red; font-weight: bold;">NAQD PUL</span> - YETKAZISH: ${name} (${phone}) | ${extraDetailsStr} | Dostavka: ${currentDeliveryFee.toLocaleString()} so'm | Taomlar: ${orderItemsStr.join(', ')}`;
             } else {
                 statusText = `TO'LANGAN - YETKAZISH: ${name} (${phone}) | ${extraDetailsStr} | Dostavka: ${currentDeliveryFee.toLocaleString()} so'm | Taomlar: ${orderItemsStr.join(', ')}`;
             }
