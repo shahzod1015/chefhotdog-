@@ -299,7 +299,7 @@
 
         .zone-badge-box { display: flex; gap: 8px; margin-bottom: 10px; }
         .zone-badge { flex: 1; padding: 8px; border-radius: 8px; text-align: center; font-size: 11px; font-weight: bold; }
-        .cafe-marker-icon { border-radius: 50%; border: 2px solid #d4af37; object-fit: cover; }
+        .cafe-marker-icon, .courier-marker-icon { border-radius: 50%; border: 2px solid #d4af37; object-fit: cover; background: #000; }
 
         .payment-box {
             background: rgba(20, 20, 25, 0.9);
@@ -427,8 +427,8 @@
 
     <!-- Buyurtmam haqida Modal Oynasi -->
     <div id="order-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:10000; justify-content:center; align-items:center; padding:16px;">
-        <div style="background:#121216; border: 1px solid rgba(212,175,55,0.4); border-radius:18px; padding:20px; width:100%; max-width:450px; position:relative;">
-            <button onclick="document.getElementById('order-modal').style.display='none'" style="position:absolute; top:15px; right:15px; background:#ef4444; color:#fff; border:none; width:30px; height:30px; border-radius:50%; font-weight:bold; cursor:pointer;">✕</button>
+        <div style="background:#121216; border: 1px solid rgba(212,175,55,0.4); border-radius:18px; padding:20px; width:100%; max-width:450px; position:relative; max-height: 90vh; overflow-y: auto;">
+            <button onclick="document.getElementById('order-modal').style.display='none'" style="position:absolute; top:15px; right:15px; background:#ef4444; color:#fff; border:none; width:30px; height:30px; border-radius:50%; font-weight:bold; cursor:pointer; z-index:10;">✕</button>
             <h3 style="color: #f5d061; margin-bottom: 12px;">📦 Mening Buyurtmam</h3>
             <div id="my-order-details" style="font-size: 13px; color: #ddd;">Buyurtmalar tekshirilmoqda...</div>
         </div>
@@ -455,6 +455,8 @@
         let menuItems = [];
         let map, userMarker, cafeMarker, circle1, circle2;
         let paymentSettings = null;
+        let liveTrackingMap = null;
+        let trackingInterval = null;
 
         let cafeLat = 38.849449, cafeLng = 65.793410;
         let zone1Km = 0.7, zone1Price = 5000, zone1Min = 48000;
@@ -491,7 +493,7 @@
             const s = sales[0];
             const statusStr = (s.status || '');
             let statusText = "Qabul qilinmoqda";
-            let mapButton = "";
+            let actionButton = "";
 
             if (statusStr.includes('[BEKOR QILINGAN]')) {
                 statusText = "❌ Buyurtma bekor qilingan";
@@ -499,11 +501,7 @@
                 statusText = "✅ Buyurtma yetkazib berildi";
             } else if (statusStr.includes('KURYERGA BERILDI')) {
                 statusText = "🛵 Kuryer yo'lda (Yetkazilmoqda)";
-                if (s.courier_lat && s.courier_lng && s.lat && s.lng) {
-                    mapButton = `<a href="https://yandex.uz/maps/?rtext=${s.courier_lat},${s.courier_lng}~${s.lat},${s.lng}&rtt=auto" target="_blank" style="display:block; text-align:center; margin-top:12px; background:#ef4444; color:#fff; padding:12px; border-radius:10px; text-decoration:none; font-weight:bold;">🗺 Yandex Xaritada Kuryerni Ko'rish</a>`;
-                } else if (s.lat && s.lng) {
-                    mapButton = `<a href="https://yandex.uz/maps/?rtext=~${s.lat},${s.lng}&rtt=auto" target="_blank" style="display:block; text-align:center; margin-top:12px; background:#ef4444; color:#fff; padding:12px; border-radius:10px; text-decoration:none; font-weight:bold;">🗺 Manzilni Xaritada Ochish</a>`;
-                }
+                actionButton = `<button onclick="openLiveTracking(${s.id})" style="width:100%; margin-top:12px; background:#f5d061; color:#000; border:none; padding:12px; border-radius:10px; font-weight:900; cursor:pointer; text-transform:uppercase; box-shadow: 0 4px 15px rgba(245,208,97,0.4);">🛵 Kuryerni kuzatish</button>`;
             } else if (statusStr.includes('TAYYOR')) {
                 statusText = "⏱ Buyurtma tayyorlandi, kuryer biriktirilishini kutyapti";
             }
@@ -514,9 +512,64 @@
                     <p style="font-size: 13px; color: #f5d061; margin-bottom: 6px;"><b>Holati:</b> ${statusText}</p>
                     <p style="font-size: 12px; color: #ccc; margin-bottom: 6px;"><b>Tafsilotlar:</b> ${statusStr.replace(/\[.*?\]/g, '')}</p>
                     <p style="font-size: 13px; color: #aaa; margin-bottom: 8px;"><b>Jami summa:</b> ${Number(s.total_amount || 0).toLocaleString()} so'm</p>
-                    ${mapButton}
+                    ${actionButton}
                 </div>
             `;
+        }
+
+        async function openLiveTracking(orderId) {
+            const detailsDiv = document.getElementById('my-order-details');
+            detailsDiv.innerHTML = `
+                <div style="text-align:center; padding:10px;">
+                    <p style="color:#f5d061; margin-bottom:8px; font-weight:bold;">🛵 Kuryer joylashuvi yuklanmoqda...</p>
+                    <div id="live-map" style="width:100%; height:300px; border-radius:12px; border:1px solid #d4af37; margin-bottom:10px; z-index:1;"></div>
+                    <button onclick="fetchMyLatestOrder()" style="background:#333; color:#fff; border:1px solid #777; padding:8px 14px; border-radius:8px; cursor:pointer; font-size:12px;">Orqaga qaytish</button>
+                </div>
+            `;
+
+            if (trackingInterval) clearInterval(trackingInterval);
+
+            setTimeout(async () => {
+                const client = getClient();
+                const { data, error } = await client.from('sales').select('courier_lat, courier_lng, lat, lng').eq('id', orderId).maybeSingle();
+                
+                let cLat = data && data.courier_lat ? data.courier_lat : cafeLat;
+                let cLng = data && data.courier_lng ? data.courier_lng : cafeLng;
+                let uLat = data && data.lat ? data.lat : cafeLat;
+                let uLng = data && data.lng ? data.lng : cafeLng;
+
+                if (liveTrackingMap) {
+                    liveTrackingMap.remove();
+                }
+
+                liveTrackingMap = L.map('live-map').setView([cLat, cLng], 15);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(liveTrackingMap);
+
+                const courierIcon = L.icon({
+                    iconUrl: 'https://wrrsvrgdinfmnuwewtoa.supabase.co/storage/v1/object/public/menu-images/Untitled%20folder/content.png',
+                    iconSize: [42, 42],
+                    iconAnchor: [21, 21],
+                    className: 'courier-marker-icon'
+                });
+
+                const customerIcon = L.icon({
+                    iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+                    iconSize: [25, 41],
+                    iconAnchor: [12, 41]
+                });
+
+                let courierMarker = L.marker([cLat, cLng], { icon: courierIcon }).addTo(liveTrackingMap).bindPopup("Kuryer shu yerda").openPopup();
+                L.marker([uLat, uLng], { icon: customerIcon }).addTo(liveTrackingMap).bindPopup("Sizning manzilingiz");
+
+                trackingInterval = setInterval(async () => {
+                    const { data: freshData } = await client.from('sales').select('courier_lat, courier_lng').eq('id', orderId).maybeSingle();
+                    if (freshData && freshData.courier_lat && freshData.courier_lng) {
+                        courierMarker.setLatLng([freshData.courier_lat, freshData.courier_lng]);
+                        liveTrackingMap.panTo([freshData.courier_lat, freshData.courier_lng]);
+                    }
+                }, 5000);
+
+            }, 300);
         }
 
         function calculateDistance(lat1, lon1, lat2, lon2) {
