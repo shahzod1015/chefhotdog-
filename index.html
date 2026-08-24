@@ -8,8 +8,10 @@
     <link rel="apple-touch-icon" sizes="180x180" href="https://wrrsvrgdinfmnuwewtoa.supabase.co/storage/v1/object/public/menu-images/Untitled%20folder/content.png">
     <link rel="icon" type="image/png" href="https://wrrsvrgdinfmnuwewtoa.supabase.co/storage/v1/object/public/menu-images/Untitled%20folder/content.png">
     
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
+    <!-- Leaflet Map CSS & JS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
@@ -354,7 +356,6 @@
             </div>
             <div class="header-subtext">🚀 Onlayn buyurtma va tezkor yetkazib berish</div>
             
-            <!-- Buyurtmam haqida tugmasi -->
             <button class="btn-my-order" onclick="openMyOrderModal()">🛒 Buyurtmam haqida</button>
         </div>
 
@@ -442,14 +443,14 @@
         <button id="submit-btn" class="btn-submit" onclick="sendDeliveryOrder()">Buyurtma berish 🚀</button>
     </div>
 
-    <script[cite: 2]>
+    <script>
         const SUPABASE_URL = "https://wrrsvrgdinfmnuwewtoa.supabase.co";
         const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndycnN2cmdkaW5mbW51d2V3dG9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY5NzM0ODIsImV4cCI6MjEwMjU0OTQ4Mn0.YRHratsKVG42IY6YKokDycRy23oU8N3b7jO-o3tpQF4";
         
         const TELEGRAM_BOT_TOKEN = "8992397944:AAFPRv6NKFKn7dLz6hxBcLSqf93z5VfAvNs";
         const TELEGRAM_CHAT_ID = "8630700790";
         
-        let db;
+        let db = null;
         let cart = {};
         let menuItems = [];
         let map, userMarker, cafeMarker, circle1, circle2;
@@ -471,7 +472,6 @@
             return db;
         }
 
-        // Buyurtmam haqida modal oynasini ochish va oxirgi buyurtmani yuklash
         function openMyOrderModal() {
             document.getElementById('order-modal').style.display = 'flex';
             fetchMyLatestOrder();
@@ -601,41 +601,54 @@
 
         async function loadMenu() {
             const client = getClient();
-            if (!client) return;
-
-            const { data, error } = await client.from('menu').select('*').order('id', { ascending: true });
-            if (error) {
-                console.error("Menyu xatosi:", error);
+            if (!client) {
+                document.getElementById('delivery-menu').innerHTML = '<p style="color:#ef4444; text-align:center;">Ma\'lumotlar bazasiga ulanib bo\'lmadi!</p>';
                 return;
             }
 
-            menuItems = data || [];
-            let html = '';
+            try {
+                const { data, error } = await client.from('menu').select('*').order('id', { ascending: true });
+                if (error) {
+                    console.error("Menyu xatosi:", error);
+                    document.getElementById('delivery-menu').innerHTML = '<p style="color:#ef4444; text-align:center;">Menyuni yuklashda xatolik!</p>';
+                    return;
+                }
 
-            menuItems.forEach(item => {
-                if (cart[item.id] === undefined) cart[item.id] = 0;
-                const isStopped = item.is_stopped === true || item.is_stopped === 'true';
+                menuItems = data || [];
+                if (menuItems.length === 0) {
+                    document.getElementById('delivery-menu').innerHTML = '<p style="color:#aaa; text-align:center;">Menyu bo\'sh.</p>';
+                    return;
+                }
 
-                html += `
-                <div class="pos-card ${isStopped ? 'is-stopped' : ''}">
-                    ${isStopped ? '<div class="stop-badge">🛑 STOP LIST</div>' : ''}
-                    <div>
-                        <img src="${item.image_url || 'https://via.placeholder.com/150'}" alt="${item.title}">
-                        <h4>${item.title}</h4>
-                        <div class="price">${item.price.toLocaleString()} so'm</div>
-                    </div>
-                    <div>
-                        <div class="qty-box">
-                            <button class="qty-btn" onclick="updateCart(${item.id}, -1)">-</button>
-                            <span id="qty-${item.id}" style="font-weight:bold;">${cart[item.id]}</span>
-                            <button class="qty-btn" onclick="updateCart(${item.id}, 1)">+</button>
+                let html = '';
+                menuItems.forEach(item => {
+                    if (cart[item.id] === undefined) cart[item.id] = 0;
+                    const isStopped = item.is_stopped === true || item.is_stopped === 'true';
+
+                    html += `
+                    <div class="pos-card ${isStopped ? 'is-stopped' : ''}">
+                        ${isStopped ? '<div class="stop-badge">🛑 STOP LIST</div>' : ''}
+                        <div>
+                            <img src="${item.image_url || 'https://via.placeholder.com/150'}" alt="${item.title}">
+                            <h4>${item.title}</h4>
+                            <div class="price">${item.price.toLocaleString()} so'm</div>
                         </div>
-                    </div>
-                </div>`;
-            });
+                        <div>
+                            <div class="qty-box">
+                                <button class="qty-btn" onclick="updateCart(${item.id}, -1)">-</button>
+                                <span id="qty-${item.id}" style="font-weight:bold;">${cart[item.id]}</span>
+                                <button class="qty-btn" onclick="updateCart(${item.id}, 1)">+</button>
+                            </div>
+                        </div>
+                    </div>`;
+                });
 
-            document.getElementById('delivery-menu').innerHTML = html;
-            calculateTotal();
+                document.getElementById('delivery-menu').innerHTML = html;
+                calculateTotal();
+            } catch (err) {
+                console.error("Catch error:", err);
+                document.getElementById('delivery-menu').innerHTML = '<p style="color:#ef4444; text-align:center;">Xatolik yuz berdi!</p>';
+            }
         }
 
         function updateCart(id, change) {
@@ -679,6 +692,13 @@
         }
 
         async function initApp() {
+            // Supabase kutubxonasi to'liq yuklanganini tekshiramiz
+            let attempts = 0;
+            while (!window.supabase && attempts < 20) {
+                await new Promise(r => setTimeout(r, 100));
+                attempts++;
+            }
+
             await loadSettings();
             await loadMenu();
 
