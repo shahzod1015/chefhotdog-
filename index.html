@@ -130,6 +130,26 @@
             border-top: 1px dashed rgba(212, 175, 55, 0.15);
         }
 
+        .top-action-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .btn-my-order {
+            flex: 1;
+            background: var(--gold-btn-grad);
+            color: #000;
+            border: none;
+            padding: 10px;
+            border-radius: 12px;
+            font-weight: 900;
+            font-size: 12px;
+            cursor: pointer;
+            text-transform: uppercase;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+        }
+
         .min-order-info {
             background: rgba(59, 130, 246, 0.12) !important;
             border: 1px solid var(--blue-accent) !important;
@@ -319,6 +339,53 @@
             accent-color: #d4af37;
             cursor: pointer;
         }
+
+        /* Buyurtma Modal Oynasi */
+        #order-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+        }
+        .modal-content {
+            background: #121216;
+            border: var(--gold-border);
+            border-radius: 18px;
+            padding: 20px;
+            width: 100%;
+            max-width: 450px;
+            max-height: 85vh;
+            overflow-y: auto;
+            position: relative;
+        }
+        .close-modal {
+            position: absolute;
+            top: 15px; right: 15px;
+            background: #ef4444;
+            color: #fff;
+            border: none;
+            width: 30px; height: 30px;
+            border-radius: 50%;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .btn-yandex-live {
+            display: block;
+            text-align: center;
+            margin-top: 12px;
+            background: #ef4444;
+            color: #fff;
+            padding: 12px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 13px;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+        }
     </style>
 </head>
 <body>
@@ -337,6 +404,10 @@
                 </div>
             </div>
             <div class="header-subtext">🚀 Onlayn buyurtma va tezkor yetkazib berish</div>
+        </div>
+
+        <div class="top-action-bar">
+            <button class="btn-my-order" onclick="openMyOrderModal()">🛒 Buyurtmam haqida</button>
         </div>
 
         <div class="min-order-info" id="min-order-banner">
@@ -405,6 +476,15 @@
         </div>
     </div>
 
+    <!-- Buyurtmam haqida Modal Oynasi -->
+    <div id="order-modal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeMyOrderModal()">✕</button>
+            <h3 style="color: var(--gold-text); margin-bottom: 12px;">📦 Mening Buyurtmam</h3>
+            <div id="my-order-details" style="font-size: 13px; color: #ddd;">Buyurtmalar tekshirilmoqda...</div>
+        </div>
+    </div>
+
     <div class="cart-bar">
         <div>
             <div style="font-size:11px; color:#a1a1aa;">Jami taomlar: <span id="food-total">0</span> so'm</div>
@@ -414,7 +494,7 @@
         <button id="submit-btn" class="btn-submit" onclick="sendDeliveryOrder()">Buyurtma berish 🚀</button>
     </div>
 
-    <script>
+    <script[cite: 2]>
         const SUPABASE_URL = "https://wrrsvrgdinfmnuwewtoa.supabase.co";
         const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndycnN2cmdkaW5mbW51d2V3dG9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY5NzM0ODIsImV4cCI6MjEwMjU0OTQ4Mn0.YRHratsKVG42IY6YKokDycRy23oU8N3b7jO-o3tpQF4";
         
@@ -441,6 +521,64 @@
                 db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
             }
             return db;
+        }
+
+        // Modal boshqaruvi
+        function openMyOrderModal() {
+            document.getElementById('order-modal').style.display = 'flex';
+            fetchMyLatestOrder();
+        }
+
+        function closeMyOrderModal() {
+            document.getElementById('order-modal').style.display = 'none';
+        }
+
+        async function fetchMyLatestOrder() {
+            const client = getClient();
+            if (!client) return;
+
+            // Oxirgi buyurtmani tekshirish
+            const { data: sales, error } = await client.from('sales').select('*').order('created_at', { ascending: false }).limit(1);
+            
+            if (error || !sales || sales.length === 0) {
+                document.getElementById('my-order-details').innerHTML = '<p style="color:#aaa; text-align:center;">Hozircha faol buyurtmangiz yo\'q.</p>';
+                return;
+            }
+
+            const s = sales[0];
+            const statusStr = (s.status || '');
+
+            let statusText = "Qabul qilinmoqda";
+            let mapButton = "";
+
+            if (statusStr.includes('[BEKOR QILINGAN]')) {
+                statusText = "❌ Buyurtma bekor qilingan";
+            } else if (statusStr.includes('[YETKAZILDI]')) {
+                statusText = "✅ Buyurtma yetkazib berildi";
+            } else if (statusStr.includes('KURYERGA BERILDI')) {
+                statusText = "🛵 Kuryer yo'lda (Yetkazilmoqda)";
+                
+                // Kuryer va mijoz koordinatalari orqali Yandex xaritani ochish
+                if (s.courier_lat && s.courier_lng && s.lat && s.lng) {
+                    mapButton = `<a class="btn-yandex-live" href="https://yandex.uz/maps/?rtext=${s.courier_lat},${s.courier_lng}~${s.lat},${s.lng}&rtt=auto" target="_blank">🗺 Yandex Xaritada Kuryerni Ko'rish</a>`;
+                } else if (s.lat && s.lng) {
+                    mapButton = `<a class="btn-yandex-live" href="https://yandex.uz/maps/?rtext=~${s.lat},${s.lng}&rtt=auto" target="_blank">🗺 Manzilni Xaritada Ochish</a>`;
+                }
+            } else if (statusStr.includes('TAYYOR')) {
+                statusText = "⏱ Buyurtma tayyorlandi, kuryer biriktirilishini kutyapti";
+            }
+
+            let html = `
+                <div style="background: rgba(20,20,25,0.9); border: 1px solid rgba(212,175,55,0.3); padding: 12px; border-radius: 12px;">
+                    <p style="font-size: 13px; margin-bottom: 6px;"><b>Buyurtma #${s.id}</b></p>
+                    <p style="font-size: 13px; color: var(--gold-text); margin-bottom: 6px;"><b>Holati:</b> ${statusText}</p>
+                    <p style="font-size: 12px; color: #ccc; margin-bottom: 6px;"><b>Tafsilotlar:</b> ${statusStr.replace(/\[.*?\]/g, '')}</p>
+                    <p style="font-size: 13px; color: #aaa; margin-bottom: 8px;"><b>Jami summa:</b> ${Number(s.total_amount || 0).toLocaleString()} so'm</p>
+                    ${mapButton}
+                </div>
+            `;
+
+            document.getElementById('my-order-details').innerHTML = html;
         }
 
         function calculateDistance(lat1, lon1, lat2, lon2) {
@@ -738,7 +876,9 @@
                 total_amount: grandTotal,
                 total_cost: totalCost,
                 profit: grandTotal - totalCost,
-                status: statusText
+                status: statusText,
+                lat: selectedLat,
+                lng: selectedLng
             }]);
 
             if (error) {
