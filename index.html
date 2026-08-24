@@ -729,7 +729,7 @@
             if (payMethod === 'card' && receiptFileUrl) {
                 statusText = `TO'LANGAN - YETKAZISH: ${name} (${phone}) | ${extraDetailsStr} | Dostavka: ${currentDeliveryFee.toLocaleString()} so'm | Taomlar: ${orderItemsStr.join(', ')} | Chek: ${receiptFileUrl}`;
             } else if (payMethod === 'cash') {
-                statusText = `TO'LOV: <span style="color: red; font-weight: bold;">NAQD PUL</span> - YETKAZISH: ${name} (${phone}) | ${extraDetailsStr} | Dostavka: ${currentDeliveryFee.toLocaleString()} so'm | Taomlar: ${orderItemsStr.join(', ')}`;
+                statusText = `NAQD PUL - YETKAZISH: ${name} (${phone}) | ${extraDetailsStr} | Dostavka: ${currentDeliveryFee.toLocaleString()} so'm | Taomlar: ${orderItemsStr.join(', ')}`;
             } else {
                 statusText = `TO'LANGAN - YETKAZISH: ${name} (${phone}) | ${extraDetailsStr} | Dostavka: ${currentDeliveryFee.toLocaleString()} so'm | Taomlar: ${orderItemsStr.join(', ')}`;
             }
