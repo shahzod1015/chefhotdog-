@@ -533,15 +533,19 @@
                 const client = getClient();
                 const { data, error } = await client.from('sales').select('courier_lat, courier_lng, lat, lng').eq('id', orderId).maybeSingle();
                 
-                let cLat = data && data.courier_lat ? data.courier_lat : cafeLat;
-                let cLng = data && data.courier_lng ? data.courier_lng : cafeLng;
-                let uLat = data && data.lat ? data.lat : cafeLat;
-                let uLng = data && data.lng ? data.lng : cafeLng;
+                // Kuryer koordinatalari bazadan olinadi (agar kuryer hali yubormagan bo'lsa, vaqtincha kafe koordinatasi olinadi)
+                let cLat = (data && data.courier_lat) ? parseFloat(data.courier_lat) : cafeLat;
+                let cLng = (data && data.courier_lng) ? parseFloat(data.courier_lng) : cafeLng;
+                
+                // Mijozning manzili (bazadagi mijoz turgan joy koordinatasi)
+                let uLat = (data && data.lat) ? parseFloat(data.lat) : cafeLat;
+                let uLng = (data && data.lng) ? parseFloat(data.lng) : cafeLng;
 
                 if (liveTrackingMap) {
                     liveTrackingMap.remove();
                 }
 
+                // Xarita markaziga kuryerning haqiqiy koordinatasi o'rnatiladi
                 liveTrackingMap = L.map('live-map').setView([cLat, cLng], 15);
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(liveTrackingMap);
 
@@ -558,14 +562,18 @@
                     iconAnchor: [12, 41]
                 });
 
-                let courierMarker = L.marker([cLat, cLng], { icon: courierIcon }).addTo(liveTrackingMap).bindPopup("Kuryer shu yerda").openPopup();
-                L.marker([uLat, uLng], { icon: customerIcon }).addTo(liveTrackingMap).bindPopup("Sizning manzilingiz");
+                // Kuryer va mijoz markerlari xaritaga qo'shiladi
+                let courierMarker = L.marker([cLat, cLng], { icon: courierIcon }).addTo(liveTrackingMap).bindPopup("<b>Kuryer shu yerda</b>").openPopup();
+                L.marker([uLat, uLng], { icon: customerIcon }).addTo(liveTrackingMap).bindPopup("<b>Sizning manzilingiz</b>");
 
+                // Har 5 soniyada kuryerning GPS joylashuvi bazadan yangilanib turadi
                 trackingInterval = setInterval(async () => {
                     const { data: freshData } = await client.from('sales').select('courier_lat, courier_lng').eq('id', orderId).maybeSingle();
                     if (freshData && freshData.courier_lat && freshData.courier_lng) {
-                        courierMarker.setLatLng([freshData.courier_lat, freshData.courier_lng]);
-                        liveTrackingMap.panTo([freshData.courier_lat, freshData.courier_lng]);
+                        let newLat = parseFloat(freshData.courier_lat);
+                        let newLng = parseFloat(freshData.courier_lng);
+                        courierMarker.setLatLng([newLat, newLng]);
+                        liveTrackingMap.panTo([newLat, newLng]);
                     }
                 }, 5000);
 
