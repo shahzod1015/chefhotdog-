@@ -536,17 +536,13 @@
                 return;
             }
 
-            // Yandex Navigator / Maps uchun marshrut havolasini hosil qilamiz
             let yandexUrl = "";
             if (uLat && uLng) {
-                // Kuryer turgan joyidan mijoz manzilgacha bo'lgan marshrutni ochadi
                 yandexUrl = `https://yandex.com/maps/?rtext=${cLat},${cLng}~${uLat},${uLng}&ritt=routes`;
             } else {
-                // Agar mijoz manzili bo'lmasa, faqat kuryer turgan joy ko'rsatiladi
                 yandexUrl = `https://yandex.com/maps/?pt=${cLng},${cLat}&z=16&l=map`;
             }
 
-            // Telefoningizdagi Yandex Navigator yoki Maps ilovasini (yoki brauzer versiyasini) ochadi
             window.open(yandexUrl, '_blank');
         }
 
