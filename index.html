@@ -299,7 +299,7 @@
 
         .zone-badge-box { display: flex; gap: 8px; margin-bottom: 10px; }
         .zone-badge { flex: 1; padding: 8px; border-radius: 8px; text-align: center; font-size: 11px; font-weight: bold; }
-        .cafe-marker-icon, .courier-marker-icon { border-radius: 50%; border: 2px solid #d4af37; object-fit: cover; background: #000; }
+        .cafe-marker-icon { border-radius: 50%; border: 2px solid #d4af37; object-fit: cover; background: #000; }
 
         .payment-box {
             background: rgba(20, 20, 25, 0.9);
@@ -455,8 +455,6 @@
         let menuItems = [];
         let map, userMarker, cafeMarker, circle1, circle2;
         let paymentSettings = null;
-        let liveTrackingMap = null;
-        let trackingInterval = null;
 
         let cafeLat = 38.849449, cafeLng = 65.793410;
         let zone1Km = 0.7, zone1Price = 5000, zone1Min = 48000;
@@ -501,7 +499,7 @@
                 statusText = "✅ Buyurtma yetkazib berildi";
             } else if (statusStr.includes('KURYERGA BERILDI')) {
                 statusText = "🛵 Kuryer yo'lda (Yetkazilmoqda)";
-                actionButton = `<button onclick="openLiveTracking(${s.id})" style="width:100%; margin-top:12px; background:#f5d061; color:#000; border:none; padding:12px; border-radius:10px; font-weight:900; cursor:pointer; text-transform:uppercase; box-shadow: 0 4px 15px rgba(245,208,97,0.4);">🛵 Kuryerni kuzatish</button>`;
+                actionButton = `<button onclick="openLiveTracking(${s.id})" style="width:100%; margin-top:12px; background:#f5d061; color:#000; border:none; padding:12px; border-radius:10px; font-weight:900; cursor:pointer; text-transform:uppercase; box-shadow: 0 4px 15px rgba(245,208,97,0.4);">🗺 Yandex Navigator orqali kuzatish</button>`;
             } else if (statusStr.includes('TAYYOR')) {
                 statusText = "⏱ Buyurtma tayyorlandi, kuryer biriktirilishini kutyapti";
             }
@@ -518,66 +516,38 @@
         }
 
         async function openLiveTracking(orderId) {
-            const detailsDiv = document.getElementById('my-order-details');
-            detailsDiv.innerHTML = `
-                <div style="text-align:center; padding:10px;">
-                    <p style="color:#f5d061; margin-bottom:8px; font-weight:bold;">🛵 Kuryer joylashuvi yuklanmoqda...</p>
-                    <div id="live-map" style="width:100%; height:300px; border-radius:12px; border:1px solid #d4af37; margin-bottom:10px; z-index:1;"></div>
-                    <button onclick="fetchMyLatestOrder()" style="background:#333; color:#fff; border:1px solid #777; padding:8px 14px; border-radius:8px; cursor:pointer; font-size:12px;">Orqaga qaytish</button>
-                </div>
-            `;
+            const client = getClient();
+            if (!client) return;
 
-            if (trackingInterval) clearInterval(trackingInterval);
+            const { data, error } = await client.from('sales').select('courier_lat, courier_lng, lat, lng').eq('id', orderId).maybeSingle();
+            
+            if (error || !data) {
+                alert("Kuryer ma'lumotlarini olishda xatolik!");
+                return;
+            }
 
-            setTimeout(async () => {
-                const client = getClient();
-                const { data, error } = await client.from('sales').select('courier_lat, courier_lng, lat, lng').eq('id', orderId).maybeSingle();
-                
-                // Kuryer koordinatalari bazadan olinadi (agar kuryer hali yubormagan bo'lsa, vaqtincha kafe koordinatasi olinadi)
-                let cLat = (data && data.courier_lat) ? parseFloat(data.courier_lat) : cafeLat;
-                let cLng = (data && data.courier_lng) ? parseFloat(data.courier_lng) : cafeLng;
-                
-                // Mijozning manzili (bazadagi mijoz turgan joy koordinatasi)
-                let uLat = (data && data.lat) ? parseFloat(data.lat) : cafeLat;
-                let uLng = (data && data.lng) ? parseFloat(data.lng) : cafeLng;
+            let cLat = data.courier_lat ? parseFloat(data.courier_lat) : null;
+            let cLng = data.courier_lng ? parseFloat(data.courier_lng) : null;
+            let uLat = data.lat ? parseFloat(data.lat) : null;
+            let uLng = data.lng ? parseFloat(data.lng) : null;
 
-                if (liveTrackingMap) {
-                    liveTrackingMap.remove();
-                }
+            if (!cLat || !cLng) {
+                alert("Hozircha kuryer hali yo'lga chiqmagan yoki GPS ma'lumotlari yangilanmadi.");
+                return;
+            }
 
-                // Xarita markaziga kuryerning haqiqiy koordinatasi o'rnatiladi
-                liveTrackingMap = L.map('live-map').setView([cLat, cLng], 15);
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(liveTrackingMap);
+            // Yandex Navigator / Maps uchun marshrut havolasini hosil qilamiz
+            let yandexUrl = "";
+            if (uLat && uLng) {
+                // Kuryer turgan joyidan mijoz manzilgacha bo'lgan marshrutni ochadi
+                yandexUrl = `https://yandex.com/maps/?rtext=${cLat},${cLng}~${uLat},${uLng}&ritt=routes`;
+            } else {
+                // Agar mijoz manzili bo'lmasa, faqat kuryer turgan joy ko'rsatiladi
+                yandexUrl = `https://yandex.com/maps/?pt=${cLng},${cLat}&z=16&l=map`;
+            }
 
-                const courierIcon = L.icon({
-                    iconUrl: 'https://wrrsvrgdinfmnuwewtoa.supabase.co/storage/v1/object/public/menu-images/Untitled%20folder/content.png',
-                    iconSize: [42, 42],
-                    iconAnchor: [21, 21],
-                    className: 'courier-marker-icon'
-                });
-
-                const customerIcon = L.icon({
-                    iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-                    iconSize: [25, 41],
-                    iconAnchor: [12, 41]
-                });
-
-                // Kuryer va mijoz markerlari xaritaga qo'shiladi
-                let courierMarker = L.marker([cLat, cLng], { icon: courierIcon }).addTo(liveTrackingMap).bindPopup("<b>Kuryer shu yerda</b>").openPopup();
-                L.marker([uLat, uLng], { icon: customerIcon }).addTo(liveTrackingMap).bindPopup("<b>Sizning manzilingiz</b>");
-
-                // Har 5 soniyada kuryerning GPS joylashuvi bazadan yangilanib turadi
-                trackingInterval = setInterval(async () => {
-                    const { data: freshData } = await client.from('sales').select('courier_lat, courier_lng').eq('id', orderId).maybeSingle();
-                    if (freshData && freshData.courier_lat && freshData.courier_lng) {
-                        let newLat = parseFloat(freshData.courier_lat);
-                        let newLng = parseFloat(freshData.courier_lng);
-                        courierMarker.setLatLng([newLat, newLng]);
-                        liveTrackingMap.panTo([newLat, newLng]);
-                    }
-                }, 5000);
-
-            }, 300);
+            // Telefoningizdagi Yandex Navigator yoki Maps ilovasini (yoki brauzer versiyasini) ochadi
+            window.open(yandexUrl, '_blank');
         }
 
         function calculateDistance(lat1, lon1, lat2, lon2) {
